@@ -98,9 +98,17 @@
       }
     }
 
-    async function runAnalysis() {
+   async function runAnalysis() {
       const sport = document.getElementById('sportSelect').value;
-      const gameId = document.getElementById('gameSelect').value;
+      const gameSelect = document.getElementById('gameSelect');
+      const gameId = gameSelect.value;
+      
+      // Grab the text of the selected option to extract home/away names
+      const selectedOptionText = gameSelect.options[gameSelect.selectedIndex].text;
+      const teams = selectedOptionText.split('(')[0].trim(); // e.g., "Denver Broncos @ Kansas City Chiefs"
+      const teamParts = teams.split('@');
+      const awayTeam = teamParts[0] ? teamParts[0].trim() : '';
+      const homeTeam = teamParts[1] ? teamParts[1].trim() : '';
 
       document.getElementById('resultsArea').classList.remove('hidden');
       document.getElementById('loading').classList.remove('hidden');
@@ -111,7 +119,7 @@
         const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sport, gameId })
+          body: JSON.stringify({ sport, gameId, homeTeam, awayTeam })
         });
         
         const data = await res.json();
@@ -126,6 +134,8 @@
         document.getElementById('analysisOutput').innerHTML = `<p class="text-red-400 font-bold">Error: ${e.message}</p>`;
       } finally {
         document.getElementById('analyzeBtn').disabled = false;
+      }
+    }
       }
     }
   </script>
