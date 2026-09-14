@@ -27,10 +27,17 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-2">Select League</label>
         <select id="sportSelect" class="w-full bg-gray-950 border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-blue-500" onchange="fetchGames()">
-          <option value="">-- Select Sport --</option>
+        <option value="">-- Choose a Sport --</option>
+        <!-- American Sports -->
           <option value="americanfootball_nfl">NFL Football</option>
           <option value="basketball_nba">NBA Basketball</option>
           <option value="baseball_mlb">MLB Baseball</option>
+          <option value="icehockey_nhl">NHL Hockey</option>
+  
+        <!-- Soccer / Global Leagues -->
+          <option value="soccer_epl">English Premier League (Soccer)</option>
+          <option value="soccer_spain_la_liga">La Liga (Soccer)</option>
+        </select>
         </select>
       </div>
 
