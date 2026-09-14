@@ -655,71 +655,115 @@
       `;
     }
 
-    async function fetchGames() {
-      const sport = sportSelect.value;
+  async function fetchGames() {
+    const sport = sportSelect.value;
 
-      analyzeBtn.disabled = true;
-      gameSelect.disabled = true;
-      gameSelect.innerHTML = `
-        <option value="">${sport ? "Loading upcoming games..." : "Choose a sport above first..."}</option>
-      `;
+    analyzeBtn.disabled = true;
+    gameSelect.disabled = true;
+    gameSelect.innerHTML = `
+      <option value="">${sport ? "Loading upcoming games..." : "Choose a sport above first..."}</option>
+    `;
 
-      if (!sport) {
+    if (!sport) {
+      return;
+    }
+
+    try {
+      const requestUrl = `${WORKER_URL}?sport=${encodeURIComponent(sport)}`;
+
+      console.log("Loading games from:", requestUrl);
+
+      const response = await fetch(requestUrl, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      const rawText = await response.text();
+
+      console.log("Worker GET status:", response.status);
+      console.log("Worker GET response:", rawText);
+
+      let data;
+
+      try {
+        data = rawText ? JSON.parse(rawText) : null;
+      } catch {
+        throw new Error(
+          `Worker did not return JSON. HTTP ${response.status}: ${rawText.slice(0, 200)}`
+        );
+      }
+
+      /*
+        Supports BOTH Worker response formats:
+
+        New Worker:
+        { success: true, games: [...] }
+
+        Old Worker:
+        [...]
+      */
+      const games = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.games)
+          ? data.games
+          : [];
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
+          data?.message ||
+          `Worker request failed with HTTP ${response.status}.`
+        );
+      }
+
+      if (data?.success === false) {
+        throw new Error(
+          data?.error ||
+          "The Worker reported an error while loading games."
+        );
+      }
+
+      if (games.length === 0) {
+        gameSelect.innerHTML = `
+          <option value="">No upcoming games found for this sport</option>
+        `;
         return;
       }
 
-      try {
-        const response = await fetch(
-          `${WORKER_URL}?sport=${encodeURIComponent(sport)}`
-        );
+      gameSelect.innerHTML = `
+        <option value="">-- Select a Game --</option>
+      `;
 
-        let data;
+      games.forEach((game) => {
+        const option = document.createElement("option");
 
-        try {
-          data = await response.json();
-        } catch {
-          throw new Error("The Worker returned an invalid response while loading games.");
-        }
+        option.value = game.id || "";
+        option.dataset.homeTeam = game.home_team || "";
+        option.dataset.awayTeam = game.away_team || "";
 
-        if (!response.ok || !data?.success) {
-          throw new Error(data?.error || "Failed to fetch upcoming games.");
-        }
+        option.textContent =
+          `${game.away_team || "Away Team"} @ ${game.home_team || "Home Team"} ` +
+          `(${formatDate(game.commence_time)})`;
 
-        const games = Array.isArray(data.games) ? data.games : [];
+        gameSelect.appendChild(option);
+      });
 
-        if (games.length === 0) {
-          gameSelect.innerHTML = `
-            <option value="">No upcoming games found for this sport</option>
-          `;
-          return;
-        }
+      gameSelect.disabled = false;
+      analyzeBtn.disabled = true;
+    } catch (error) {
+      console.error("fetchGames error:", error);
 
-        gameSelect.innerHTML = `
-          <option value="">-- Select a Game --</option>
-        `;
+      gameSelect.disabled = true;
+      analyzeBtn.disabled = true;
 
-        games.forEach((game) => {
-          const option = document.createElement("option");
-
-          option.value = game.id || "";
-          option.dataset.homeTeam = game.home_team || "";
-          option.dataset.awayTeam = game.away_team || "";
-
-          option.textContent =
-            `${game.away_team || "Away Team"} @ ${game.home_team || "Home Team"} ` +
-            `(${formatDate(game.commence_time)})`;
-
-          gameSelect.appendChild(option);
-        });
-
-        gameSelect.disabled = false;
-      } catch (error) {
-        gameSelect.innerHTML = `
-          <option value="">Error loading games: ${escapeHtml(error.message)}</option>
-        `;
-      }
+      gameSelect.innerHTML = `
+        <option value="">Error loading games: ${escapeHtml(error.message)}</option>
+      `;
     }
-
+  }
+    
     async function runAnalysis() {
       const sport = sportSelect.value;
       const gameId = gameSelect.value;
