@@ -8,19 +8,29 @@
   <meta property="og:title" content="Sports Market Analytics" />
   <meta property="og:description" content="Event-selection dashboard comparing deterministic market odds and synthetic no-vig consensus with Gemini contextual research." />
   <meta property="og:type" content="website" />
-  <!-- Tailwind CSS via CDN (No npm or build tools required) -->
+
+  <!-- Fonts: Inter Display & JetBrains Mono for High-Precision Financial Readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
+          },
           colors: {
             brand: {
               50: '#f0fdf4',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d'
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857'
             }
           }
         }
@@ -28,72 +38,132 @@
     };
   </script>
   <style>
-    /* Custom scrollbar for clean dark UI */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    /* Custom refined scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-[#070b14] text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-black">
 
-  <!-- Header & Navigation -->
-  <header id="mainHeader" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <!-- Header & Navigation Bar -->
+  <header id="mainHeader" class="border-b border-slate-800/80 bg-[#0c1220]/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-600/20 text-lg">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-bold text-slate-950 shadow-md shadow-emerald-500/20 text-lg">
           Ω
         </div>
         <div>
-          <h1 class="text-base font-semibold text-white leading-tight">Sports Market Analytics</h1>
-          <p class="text-xs text-slate-400">Cross-Market Consensus & Contextual AI Research</p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-white tracking-tight">Sports Market Analytics</h1>
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">v2.5</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Cross-Market Consensus & Contextual AI Research</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          Live Engine
-        </span>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-lg">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="font-mono text-slate-300">Live Consensus Engine</span>
+        </div>
+        <button id="refreshScheduleBtn" title="Refresh Live Schedule" class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
     </div>
   </header>
 
+  <!-- Top League Pill Tabs -->
+  <nav class="border-b border-slate-800/60 bg-[#090f1d] px-4 sm:px-6 lg:px-8 py-2.5 overflow-x-auto no-scrollbar">
+    <div class="max-w-7xl mx-auto flex items-center gap-2 min-w-max" id="leaguePillsContainer">
+      <!-- Generated via JS -->
+    </div>
+  </nav>
+
   <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    
-    <!-- Controls Section: Sport & Game Selection -->
-    <section id="selectionControls" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-7">
+
+    <!-- TOP SECTION: Clickable Matchup Carousel (Today & Tomorrow Games) -->
+    <section id="featuredGamesSection" class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-4 bg-emerald-500 rounded-full"></div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200" id="gamesRailTitle">
+            Featured Matchups
+          </h2>
+          <span id="activeLeagueBadge" class="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+            NFL
+          </span>
+        </div>
+
+        <!-- Date Filter Toggle (All, Today, Tomorrow) -->
+        <div class="flex items-center bg-slate-900/90 border border-slate-800 rounded-lg p-0.5 text-xs font-medium">
+          <button id="filterAllBtn" class="px-2.5 py-1 rounded-md text-emerald-400 bg-slate-800 font-semibold transition-all">All Days</button>
+          <button id="filterTodayBtn" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all">Today</button>
+          <button id="filterTomorrowBtn" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all">Tomorrow</button>
+        </div>
+      </div>
+
+      <!-- Horizontal Cards Carousel -->
+      <div class="relative group">
+        <div id="gamesRail" class="flex gap-3 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth">
+          <!-- Populated dynamically with clickable game cards -->
+          <div class="w-full text-center py-6 text-xs text-slate-500 italic bg-slate-900/40 border border-slate-800/80 rounded-xl">
+            Loading upcoming matchups...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls Section: Dropdown Fallback & Manual Trigger -->
+    <section id="selectionControls" class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
         
-        <!-- League Selector -->
+        <!-- League Selector (Dropdown) -->
         <div class="md:col-span-4">
-          <label for="leagueSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            1. Select League
+          <label for="leagueSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            League / Competition
           </label>
           <select 
             id="leagueSelect" 
-            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+            class="w-full bg-[#0c1220] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
           >
-            <option value="" disabled selected>Choose a supported sport...</option>
-            <option value="americanfootball_nfl">NFL Football</option>
-            <option value="basketball_nba">NBA Basketball</option>
-            <option value="baseball_mlb">MLB Baseball</option>
-            <option value="icehockey_nhl">NHL Hockey</option>
-            <option value="soccer_epl">English Premier League (EPL)</option>
+            <!-- Optgroups for structured navigation -->
+            <optgroup label="American Major Leagues">
+              <option value="americanfootball_nfl" selected>NFL Football</option>
+              <option value="basketball_nba">NBA Basketball</option>
+              <option value="baseball_mlb">MLB Baseball</option>
+              <option value="icehockey_nhl">NHL Hockey</option>
+            </optgroup>
+            <optgroup label="Soccer & International Football">
+              <option value="soccer_usa_mls">MLS (USA)</option>
+              <option value="soccer_uefa_champs_league">UEFA Champions League</option>
+              <option value="soccer_uefa_europa_league">UEFA Europa League</option>
+              <option value="soccer_epl">English Premier League (EPL)</option>
+              <option value="soccer_spain_la_liga">La Liga (Spain)</option>
+              <option value="soccer_italy_serie_a">Serie A (Italy)</option>
+              <option value="soccer_germany_bundesliga">Bundesliga (Germany)</option>
+            </optgroup>
           </select>
         </div>
 
-        <!-- Matchup Selector -->
+        <!-- Matchup Selector (Dropdown) -->
         <div class="md:col-span-5">
-          <label for="matchupSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            2. Upcoming Matchup
+          <label for="matchupSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            Select Matchup from List
           </label>
           <select 
             id="matchupSelect" 
             disabled 
-            class="w-full bg-slate-800/60 border border-slate-700/60 rounded-lg px-3.5 py-2.5 text-sm text-slate-400 disabled:cursor-not-allowed focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+            class="w-full bg-[#0c1220]/70 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-sm text-slate-400 disabled:cursor-not-allowed focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
           >
-            <option value="" selected>Select a league first...</option>
+            <option value="" selected>Loading matches...</option>
           </select>
         </div>
 
@@ -102,12 +172,12 @@
           <button 
             id="runAnalysisBtn" 
             disabled
-            class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 text-white font-medium py-2.5 px-4 rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed border border-emerald-500/30"
+            class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed border border-emerald-400/30 active:scale-[0.99]"
           >
             <svg id="btnIconAnalyze" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
-            <span>Run Market Analysis</span>
+            <span id="btnTextAnalyze">Analyze Market</span>
           </button>
         </div>
 
@@ -115,7 +185,7 @@
     </section>
 
     <!-- Loading Panel -->
-    <div id="loadingPanel" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-8 text-center space-y-4 shadow-xl">
+    <div id="loadingPanel" class="hidden bg-slate-900/90 border border-slate-800 rounded-2xl p-8 text-center space-y-4 shadow-2xl">
       <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 animate-spin">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -123,19 +193,19 @@
         </svg>
       </div>
       <div>
-        <h3 id="loadingTitle" class="text-base font-semibold text-slate-100">Gathering Sportsbook Data</h3>
+        <h3 id="loadingTitle" class="text-base font-bold text-slate-100">Gathering Sportsbook Data</h3>
         <p id="loadingMessage" class="text-xs text-slate-400 mt-1">Retrieving odds lines and calculating deterministic no-vig pricing...</p>
       </div>
     </div>
 
     <!-- Error Panel -->
-    <div id="errorPanel" class="hidden bg-red-950/40 border border-red-800/80 rounded-xl p-5 text-red-200 text-sm flex items-start gap-3 shadow-lg">
+    <div id="errorPanel" class="hidden bg-red-950/40 border border-red-800/80 rounded-2xl p-5 text-red-200 text-sm flex items-start gap-3 shadow-xl">
       <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
       </svg>
       <div class="flex-1">
         <h4 class="font-semibold text-red-300">Request Error</h4>
-        <p id="errorMessage" class="text-xs mt-1 text-red-200/90 leading-relaxed"></p>
+        <p id="errorMessage" class="text-xs mt-1 text-red-200/90 leading-relaxed font-mono"></p>
       </div>
     </div>
 
@@ -143,71 +213,93 @@
     <div id="resultsPanel" class="hidden space-y-8">
       
       <!-- Matchup Header Info Card -->
-      <div id="eventHeaderCard" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div id="eventHeaderCard" class="bg-gradient-to-r from-slate-900 via-slate-900/90 to-[#0c1220] border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <span id="eventSportBadge" class="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700 mb-2"></span>
-          <h2 id="eventTitle" class="text-xl sm:text-2xl font-bold text-white tracking-tight"></h2>
-          <p id="eventTime" class="text-xs text-slate-400 mt-1 flex items-center gap-1.5"></p>
+          <div class="flex items-center gap-2 mb-2">
+            <span id="eventSportBadge" class="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60"></span>
+            <span id="eventStatusBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Pre-Match</span>
+          </div>
+          <h2 id="eventTitle" class="text-xl sm:text-3xl font-extrabold text-white tracking-tight"></h2>
+          <p id="eventTime" class="text-xs text-slate-400 mt-1.5 flex items-center gap-2 font-medium"></p>
         </div>
-        <div class="flex items-center gap-6 border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-6">
+        <div class="flex items-center gap-6 border-t md:border-t-0 md:border-l border-slate-800 pt-4 md:pt-0 md:pl-8 shrink-0">
           <div>
-            <span class="block text-xs text-slate-400 uppercase tracking-wider">Books Observed</span>
-            <span id="eventBooksCount" class="text-lg font-bold text-white"></span>
+            <span class="block text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Books Observed</span>
+            <span id="eventBooksCount" class="text-2xl font-extrabold font-mono text-white"></span>
           </div>
           <div>
-            <span class="block text-xs text-slate-400 uppercase tracking-wider">Calculation Type</span>
-            <span class="text-xs font-medium text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 px-2 py-0.5 rounded inline-block mt-0.5">Synthetic Cross-Market</span>
+            <span class="block text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Engine Protocol</span>
+            <span class="text-xs font-mono font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-md inline-block mt-0.5">Multi-Book No-Vig</span>
           </div>
         </div>
       </div>
 
       <!-- SECTION 1: Deterministic Market Math -->
-      <section id="mathSection" class="space-y-6">
+      <section id="mathSection" class="space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-2 h-5 bg-emerald-500 rounded-full"></div>
-            <h3 class="text-lg font-bold text-white tracking-tight">Deterministic Market Math</h3>
+            <h3 class="text-base font-bold text-white tracking-tight uppercase">Deterministic Market Math</h3>
           </div>
-          <span class="text-xs text-slate-400 hidden sm:inline">Calculated via pure client-independent arithmetic</span>
+          <span class="text-xs text-slate-400 font-mono hidden sm:inline">Calculated via pure client-independent arithmetic</span>
         </div>
 
         <!-- Tables Container -->
-        <div id="marketsContainer" class="space-y-6">
+        <div id="marketsContainer" class="space-y-5">
           <!-- Dynamically populated tables for Moneyline, Spreads, Totals -->
         </div>
 
         <!-- Methodology & Disclaimer Callout -->
-        <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-4 text-xs text-slate-400 leading-relaxed flex items-start gap-2.5">
-          <svg class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 leading-relaxed flex items-start gap-3">
+          <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           <div>
-            <strong class="text-slate-300">Methodology Note:</strong> Price advantage represents the mathematical discrepancy between the best available sportsbook quote and the synthetic no-vig market consensus line. It is a cross-market comparison and line-shopping metric, not a validated independent forecast, predictive model, or guaranteed outcome.
+            <strong class="text-slate-200 font-semibold">Methodology Note:</strong> Price advantage represents the mathematical discrepancy between the best available sportsbook quote and the synthetic no-vig market consensus line. It is a cross-market comparison and line-shopping metric, not a predictive forecast or guaranteed outcome.
           </div>
         </div>
       </section>
 
-      <!-- SECTION 2: AI Context and Research Assessment -->
-      <section id="aiSection" class="space-y-6">
+      <!-- SECTION 2: Prediction Markets (Polymarket & Kalshi) -->
+      <section id="predictionMarketsSection" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-5 bg-purple-500 rounded-full"></div>
+            <h3 class="text-base font-bold text-white tracking-tight uppercase">Prediction Markets (Polymarket & Kalshi)</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-purple-400 font-mono bg-purple-950/60 border border-purple-800/80 px-2.5 py-1 rounded-md hidden sm:inline">
+              Event Contract Exchanges
+            </span>
+          </div>
+        </div>
+
+        <div id="predictionMarketsContainer" class="space-y-4">
+          <!-- Dynamically filled with Polymarket and Kalshi cards -->
+        </div>
+      </section>
+
+      <!-- SECTION 3: AI Context and Research Assessment -->
+      <section id="aiSection" class="space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-2 h-5 bg-blue-500 rounded-full"></div>
-            <h3 class="text-lg font-bold text-white tracking-tight">AI Context & Research Assessment</h3>
+            <h3 class="text-base font-bold text-white tracking-tight uppercase">AI Context & Research Assessment</h3>
           </div>
-          <span id="aiModelBadge" class="text-xs text-slate-400 font-mono bg-slate-900 border border-slate-800 px-2.5 py-1 rounded">
+          <span id="aiModelBadge" class="text-xs text-slate-400 font-mono bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-md">
             Gemini Research Agent
           </span>
         </div>
 
         <!-- AI Fallback / Unavailable Card (Shown when ai.available === false) -->
-        <div id="aiUnavailableCard" class="hidden bg-amber-950/30 border border-amber-700/60 rounded-xl p-5 text-amber-200 text-sm space-y-3 shadow-lg">
+        <div id="aiUnavailableCard" class="hidden bg-amber-950/30 border border-amber-700/60 rounded-2xl p-5 text-amber-200 text-sm space-y-3 shadow-lg">
           <div class="flex items-start gap-3">
             <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <div class="flex-1">
               <h4 class="font-semibold text-amber-300 text-base">AI Research Context Unavailable</h4>
-              <p id="aiUnavailableReason" class="text-xs text-amber-200/90 mt-1 leading-relaxed"></p>
+              <p id="aiUnavailableReason" class="text-xs text-amber-200/90 mt-1 leading-relaxed font-mono"></p>
               <div id="aiFinishReasonContainer" class="hidden text-xs text-amber-300 font-mono mt-1.5"></div>
               <p id="injuryReasonNote" class="text-xs text-amber-400/80 mt-2 italic"></p>
             </div>
@@ -219,16 +311,16 @@
         </div>
 
         <!-- AI Content Card -->
-        <div id="aiContentCard" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl space-y-6">
+        <div id="aiContentCard" class="bg-[#0c1220] border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
           
           <!-- Summary & Status -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-slate-800">
             <div class="md:col-span-2">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Executive Summary</span>
-              <p id="aiSummary" class="text-sm text-slate-200 leading-relaxed"></p>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">Executive Summary</span>
+              <p id="aiSummary" class="text-sm text-slate-200 leading-relaxed font-normal"></p>
             </div>
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 flex flex-col justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Research Status</span>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Research Status</span>
               <div class="mt-2">
                 <span id="aiStatusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"></span>
               </div>
@@ -238,25 +330,25 @@
           <!-- Monitoring Guidance -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Market to Monitor</h4>
-              <div class="bg-slate-800/40 border border-slate-800 rounded-lg p-3.5 text-sm font-medium text-emerald-400" id="aiMarketToMonitor"></div>
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Market to Monitor</h4>
+              <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 text-sm font-semibold text-emerald-400 font-mono" id="aiMarketToMonitor"></div>
             </div>
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Conditions to Verify</h4>
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Conditions to Verify</h4>
               <ul id="aiConditionsList" class="space-y-1.5 text-xs text-slate-300 list-disc list-inside"></ul>
             </div>
           </div>
 
           <!-- Rationale -->
           <div class="pb-6 border-b border-slate-800">
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Analytical Rationale</h4>
+            <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Analytical Rationale</h4>
             <p id="aiRationale" class="text-sm text-slate-300 leading-relaxed"></p>
           </div>
 
           <!-- Assessments Grid: Injury & Market Observations -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
-            <div class="bg-slate-800/30 border border-slate-800/80 rounded-lg p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2">
+            <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4">
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2.5">
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
@@ -265,8 +357,8 @@
               <ul id="aiInjuryList" class="space-y-1.5 text-xs text-slate-300 list-disc list-inside"></ul>
             </div>
 
-            <div class="bg-slate-800/30 border border-slate-800/80 rounded-lg p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2">
+            <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4">
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2.5">
                 <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -279,19 +371,22 @@
           <!-- Quality Flags & Missing Inputs -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Data Quality Flags</h4>
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Data Quality Flags</h4>
               <div id="aiQualityFlags" class="flex flex-wrap gap-2"></div>
             </div>
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Missing Inputs</h4>
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Missing Inputs</h4>
               <div id="aiMissingInputs" class="flex flex-wrap gap-2"></div>
             </div>
           </div>
 
-          <!-- Conclusion -->
-          <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Conclusion</h4>
-            <p id="aiConclusion" class="text-sm font-medium text-slate-200 leading-relaxed"></p>
+          <!-- Synthesized Conclusion -->
+          <div class="bg-slate-900/60 rounded-xl p-4 border border-slate-800/80">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Synthesized Conclusion</h4>
+              <span class="text-[10px] font-mono text-emerald-400/90 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded">Multi-Source Synthesis</span>
+            </div>
+            <div id="aiConclusion" class="text-sm text-slate-200 leading-relaxed whitespace-pre-line space-y-2 font-normal"></div>
           </div>
 
         </div>
@@ -305,7 +400,7 @@
   <footer class="border-t border-slate-800 mt-16 py-8 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 space-y-2">
       <p>Sports Market Analytics • Cloudflare Worker & GitHub Pages Integration</p>
-      <p class="text-[11px] text-slate-600">Odds data provided via The Odds API. AI contextual assessment via Google Gemini. For informational comparison only.</p>
+      <p class="text-[11px] text-slate-600">Odds data provided via The Odds API. Contextual intelligence powered by Gemini. For informational comparison only.</p>
     </div>
   </footer>
 
@@ -316,10 +411,42 @@
      */
     const WORKER_URL = "https://sports-betting-ai.jaime-briceno.workers.dev";
 
+    // Supported leagues definition with icons and labels
+    const LEAGUES = [
+      { key: "americanfootball_nfl", name: "NFL Football", short: "NFL", icon: "🏈" },
+      { key: "basketball_nba", name: "NBA Basketball", short: "NBA", icon: "🏀" },
+      { key: "baseball_mlb", name: "MLB Baseball", short: "MLB", icon: "⚾" },
+      { key: "icehockey_nhl", name: "NHL Hockey", short: "NHL", icon: "🏒" },
+      { key: "soccer_usa_mls", name: "MLS (USA)", short: "MLS", icon: "⚽" },
+      { key: "soccer_uefa_champs_league", name: "Champions League", short: "UCL", icon: "🏆" },
+      { key: "soccer_uefa_europa_league", name: "Europa League", short: "UEL", icon: "⭐" },
+      { key: "soccer_epl", name: "Premier League (EPL)", short: "EPL", icon: "🦁" },
+      { key: "soccer_spain_la_liga", name: "La Liga (Spain)", short: "LaLiga", icon: "🇪🇸" },
+      { key: "soccer_italy_serie_a", name: "Serie A (Italy)", short: "SerieA", icon: "🇮🇹" },
+      { key: "soccer_germany_bundesliga", name: "Bundesliga", short: "Bundesliga", icon: "🇩🇪" }
+    ];
+
+    // State
+    let currentSport = "americanfootball_nfl";
+    let cachedGames = [];
+    let activeDateFilter = "all"; // 'all' | 'today' | 'tomorrow'
+    let selectedGameId = null;
+
     // DOM Elements
+    const leaguePillsContainer = document.getElementById("leaguePillsContainer");
+    const gamesRail = document.getElementById("gamesRail");
+    const gamesRailTitle = document.getElementById("gamesRailTitle");
+    const activeLeagueBadge = document.getElementById("activeLeagueBadge");
+    const refreshScheduleBtn = document.getElementById("refreshScheduleBtn");
+
+    const filterAllBtn = document.getElementById("filterAllBtn");
+    const filterTodayBtn = document.getElementById("filterTodayBtn");
+    const filterTomorrowBtn = document.getElementById("filterTomorrowBtn");
+
     const leagueSelect = document.getElementById("leagueSelect");
     const matchupSelect = document.getElementById("matchupSelect");
     const runAnalysisBtn = document.getElementById("runAnalysisBtn");
+    const btnTextAnalyze = document.getElementById("btnTextAnalyze");
     const loadingPanel = document.getElementById("loadingPanel");
     const loadingTitle = document.getElementById("loadingTitle");
     const loadingMessage = document.getElementById("loadingMessage");
@@ -333,6 +460,7 @@
     const eventTime = document.getElementById("eventTime");
     const eventBooksCount = document.getElementById("eventBooksCount");
     const marketsContainer = document.getElementById("marketsContainer");
+    const predictionMarketsContainer = document.getElementById("predictionMarketsContainer");
 
     // AI Elements
     const aiUnavailableCard = document.getElementById("aiUnavailableCard");
@@ -355,7 +483,7 @@
     const aiConclusion = document.getElementById("aiConclusion");
 
     /**
-     * Escape HTML helper to prevent XSS vulnerabilities
+     * Escape HTML helper
      */
     function escapeHtml(str) {
       if (str === null || str === undefined) return "";
@@ -368,13 +496,14 @@
     }
 
     /**
-     * Format UTC ISO date to localized human-readable string
+     * Format ISO datetime
      */
     function formatDate(isoString) {
       if (!isoString) return "TBD";
       try {
         const d = new Date(isoString);
         return d.toLocaleDateString(undefined, {
+          weekday: "short",
           month: "short",
           day: "numeric",
           hour: "numeric",
@@ -383,6 +512,35 @@
       } catch (e) {
         return isoString;
       }
+    }
+
+    /**
+     * Relative commencement helper (e.g. "Today 7:00 PM", "Tomorrow 1:00 PM", "In 3h")
+     */
+    function formatMatchTimeBadge(isoString) {
+      if (!isoString) return { label: "Upcoming", color: "bg-slate-800 text-slate-400" };
+      const d = new Date(isoString);
+      const now = new Date();
+      const diffMs = d - now;
+      const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+
+      const isToday = d.toDateString() === now.toDateString();
+      const tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+      const isTomorrow = d.toDateString() === tomorrow.toDateString();
+
+      const timeStr = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+
+      if (diffHours <= 0) {
+        return { label: "Live / Started", color: "bg-amber-950 text-amber-300 border-amber-800" };
+      }
+      if (isToday) {
+        return { label: `Today • ${timeStr}`, color: "bg-emerald-950/80 text-emerald-400 border-emerald-800/80" };
+      }
+      if (isTomorrow) {
+        return { label: `Tomorrow • ${timeStr}`, color: "bg-blue-950/80 text-blue-400 border-blue-800/80" };
+      }
+      return { label: d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }), color: "bg-slate-800 text-slate-300 border-slate-700" };
     }
 
     /**
@@ -399,7 +557,7 @@
     }
 
     /**
-     * Toggle loading state on UI controls
+     * Toggle loading state
      */
     function setLoading(isLoading, title = "Gathering Sportsbook Data", message = "Retrieving odds and computing cross-market math...") {
       if (isLoading) {
@@ -419,104 +577,261 @@
     }
 
     /**
-     * Event Listener: League selection changed -> fetch upcoming games
+     * Render League Pill Tabs
      */
-    leagueSelect.addEventListener("change", async () => {
-      const sport = leagueSelect.value;
-      if (!sport) return;
+    function renderLeaguePills() {
+      leaguePillsContainer.innerHTML = "";
+      for (const lg of LEAGUES) {
+        const btn = document.createElement("button");
+        const isActive = lg.key === currentSport;
+        btn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
+          isActive 
+            ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/50 shadow-sm" 
+            : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200 hover:border-slate-700"
+        }`;
+        btn.innerHTML = `<span>${lg.icon}</span><span>${lg.short}</span>`;
+        btn.addEventListener("click", () => {
+          if (currentSport !== lg.key) {
+            selectLeague(lg.key);
+          }
+        });
+        leaguePillsContainer.appendChild(btn);
+      }
+    }
 
-      // Reset Matchup dropdown
-      matchupSelect.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.textContent = "Loading matchups...";
-      matchupSelect.appendChild(defaultOption);
+    /**
+     * Set active league and fetch schedule
+     */
+    async function selectLeague(sportKey) {
+      currentSport = sportKey;
+      leagueSelect.value = sportKey;
+      const lgObj = LEAGUES.find(l => l.key === sportKey) || { short: sportKey };
+      activeLeagueBadge.textContent = lgObj.short;
+      renderLeaguePills();
+      await fetchLeagueSchedule(sportKey);
+    }
+
+    /**
+     * Fetch upcoming games for the selected league
+     */
+    async function fetchLeagueSchedule(sportKey) {
+      // Reset Select and Rail
+      matchupSelect.innerHTML = "<option value=''>Loading matchups...</option>";
       matchupSelect.disabled = true;
       runAnalysisBtn.disabled = true;
-      resultsPanel.classList.add("hidden");
+      selectedGameId = null;
 
-      setLoading(true, "Loading League Schedule", `Fetching upcoming games for ${leagueSelect.options[leagueSelect.selectedIndex].text}...`);
+      gamesRail.innerHTML = `
+        <div class="w-full text-center py-6 text-xs text-slate-400 flex items-center justify-center gap-2">
+          <div class="w-4 h-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin"></div>
+          <span>Retrieving upcoming matches...</span>
+        </div>
+      `;
 
       try {
-        const targetUrl = `${WORKER_URL}?sport=${encodeURIComponent(sport)}`;
+        const targetUrl = `${WORKER_URL}?sport=${encodeURIComponent(sportKey)}`;
         const res = await fetch(targetUrl, {
           method: "GET",
           headers: { "Accept": "application/json" }
         });
 
-        let data;
         const text = await res.text();
+        let data;
         try {
           data = JSON.parse(text);
         } catch (err) {
-          throw new Error(`Worker returned non-JSON response (${res.status}): ${text.slice(0, 150)}`);
+          throw new Error(`Worker returned non-JSON (${res.status}): ${text.slice(0, 150)}`);
         }
 
-        if (!res.ok || (data.success === false)) {
-          throw new Error(data.error || `HTTP ${res.status} occurred while loading schedule.`);
+        if (!res.ok || data.success === false) {
+          throw new Error(data.error || `HTTP ${res.status} when querying schedule.`);
         }
 
-        // Support standard { success: true, games: [...] } and raw array fallback
-        const games = Array.isArray(data.games) ? data.games : (Array.isArray(data) ? data : []);
+        cachedGames = Array.isArray(data.games) ? data.games : (Array.isArray(data) ? data : []);
+        renderGamesRail();
+        populateMatchupDropdown();
 
-        matchupSelect.innerHTML = "";
-        if (games.length === 0) {
-          const opt = document.createElement("option");
-          opt.value = "";
-          opt.textContent = "No upcoming games found for this league.";
-          matchupSelect.appendChild(opt);
-          matchupSelect.disabled = true;
-        } else {
-          const defaultSelectOpt = document.createElement("option");
-          defaultSelectOpt.value = "";
-          defaultSelectOpt.textContent = `Select from ${games.length} upcoming matchups...`;
-          defaultSelectOpt.disabled = true;
-          defaultSelectOpt.selected = true;
-          matchupSelect.appendChild(defaultSelectOpt);
-
-          for (const game of games) {
-            const opt = document.createElement("option");
-            opt.value = game.id;
-            // Store raw team names safely in dataset
-            opt.dataset.homeTeam = game.home_team;
-            opt.dataset.awayTeam = game.away_team;
-            opt.textContent = `${game.away_team} @ ${game.home_team} (${formatDate(game.commence_time)})`;
-            matchupSelect.appendChild(opt);
-          }
-
-          matchupSelect.disabled = false;
-        }
       } catch (err) {
-        showError(`Failed to load matchups: ${err.message}`);
-        matchupSelect.innerHTML = "";
-        const errOpt = document.createElement("option");
-        errOpt.value = "";
-        errOpt.textContent = "Error loading matchups. Retry league selection.";
-        matchupSelect.appendChild(errOpt);
-        matchupSelect.disabled = true;
-      } finally {
-        setLoading(false);
+        showError(`Schedule error: ${err.message}`);
+        gamesRail.innerHTML = `
+          <div class="w-full text-center py-5 text-xs text-red-400 bg-red-950/20 border border-red-900/60 rounded-xl">
+            Failed to retrieve schedule for this league. ${escapeHtml(err.message)}
+          </div>
+        `;
+        matchupSelect.innerHTML = "<option value=''>Error loading matchups</option>";
       }
-    });
+    }
 
     /**
-     * Event Listener: Matchup dropdown selection
+     * Render the clickable games cards on the top rail
      */
+    function renderGamesRail() {
+      gamesRail.innerHTML = "";
+
+      // Apply date filter
+      const now = new Date();
+      const todayStr = now.toDateString();
+      const tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+      const tomorrowStr = tomorrow.toDateString();
+
+      const filtered = cachedGames.filter(g => {
+        if (!g.commence_time) return activeDateFilter === "all";
+        const gDate = new Date(g.commence_time).toDateString();
+        if (activeDateFilter === "today") return gDate === todayStr;
+        if (activeDateFilter === "tomorrow") return gDate === tomorrowStr;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        gamesRail.innerHTML = `
+          <div class="w-full text-center py-6 text-xs text-slate-500 italic bg-slate-900/40 border border-slate-800/60 rounded-xl">
+            No ${activeDateFilter !== 'all' ? activeDateFilter : ''} games currently scheduled for this league.
+          </div>
+        `;
+        return;
+      }
+
+      for (const game of filtered) {
+        const timeBadge = formatMatchTimeBadge(game.commence_time);
+        const isSelected = selectedGameId === game.id;
+
+        const card = document.createElement("button");
+        card.className = `min-w-[240px] max-w-[270px] text-left p-3.5 rounded-xl border transition-all shrink-0 cursor-pointer ${
+          isSelected 
+            ? "bg-emerald-950/40 border-emerald-500 shadow-md shadow-emerald-500/10" 
+            : "bg-[#0c1220] border-slate-800/90 hover:border-slate-700 hover:bg-slate-900/80"
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full border ${timeBadge.color}">
+              ${timeBadge.label}
+            </span>
+            <span class="text-[10px] text-slate-500 font-mono">Click to select</span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xs font-semibold text-slate-200 truncate">${escapeHtml(game.away_team)}</span>
+              <span class="text-[10px] text-slate-500 font-mono">AWAY</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xs font-bold text-white truncate">${escapeHtml(game.home_team)}</span>
+              <span class="text-[10px] text-slate-500 font-mono">HOME</span>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          selectGame(game.id, true);
+        });
+
+        gamesRail.appendChild(card);
+      }
+    }
+
+    /**
+     * Populate Matchup Select Dropdown
+     */
+    function populateMatchupDropdown() {
+      matchupSelect.innerHTML = "";
+      if (cachedGames.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No upcoming games found.";
+        matchupSelect.appendChild(opt);
+        matchupSelect.disabled = true;
+        return;
+      }
+
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = "";
+      defaultOpt.textContent = `Select from ${cachedGames.length} upcoming matches...`;
+      defaultOpt.disabled = true;
+      defaultOpt.selected = !selectedGameId;
+      matchupSelect.appendChild(defaultOpt);
+
+      for (const game of cachedGames) {
+        const opt = document.createElement("option");
+        opt.value = game.id;
+        opt.dataset.homeTeam = game.home_team;
+        opt.dataset.awayTeam = game.away_team;
+        opt.textContent = `${game.away_team} @ ${game.home_team} (${formatDate(game.commence_time)})`;
+        if (selectedGameId === game.id) {
+          opt.selected = true;
+        }
+        matchupSelect.appendChild(opt);
+      }
+
+      matchupSelect.disabled = false;
+      runAnalysisBtn.disabled = !selectedGameId;
+    }
+
+    /**
+     * Select game from rail or dropdown
+     */
+    function selectGame(gameId, autoScrollToButton = false) {
+      selectedGameId = gameId;
+      matchupSelect.value = gameId;
+      runAnalysisBtn.disabled = !gameId;
+      renderGamesRail();
+
+      const chosenGame = cachedGames.find(g => g.id === gameId);
+      if (chosenGame) {
+        btnTextAnalyze.textContent = `Analyze ${chosenGame.away_team.split(' ').pop()} @ ${chosenGame.home_team.split(' ').pop()}`;
+      } else {
+        btnTextAnalyze.textContent = "Analyze Market";
+      }
+
+      if (autoScrollToButton && runAnalysisBtn) {
+        runAnalysisBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+
+    // Filter Buttons Event Handlers
+    function setDateFilter(filter) {
+      activeDateFilter = filter;
+      const allBtns = [filterAllBtn, filterTodayBtn, filterTomorrowBtn];
+      for (const b of allBtns) {
+        b.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all";
+      }
+      if (filter === "all") {
+        filterAllBtn.className = "px-2.5 py-1 rounded-md text-emerald-400 bg-slate-800 font-semibold transition-all";
+      } else if (filter === "today") {
+        filterTodayBtn.className = "px-2.5 py-1 rounded-md text-emerald-400 bg-slate-800 font-semibold transition-all";
+      } else if (filter === "tomorrow") {
+        filterTomorrowBtn.className = "px-2.5 py-1 rounded-md text-emerald-400 bg-slate-800 font-semibold transition-all";
+      }
+      renderGamesRail();
+    }
+
+    filterAllBtn.addEventListener("click", () => setDateFilter("all"));
+    filterTodayBtn.addEventListener("click", () => setDateFilter("today"));
+    filterTomorrowBtn.addEventListener("click", () => setDateFilter("tomorrow"));
+
+    refreshScheduleBtn.addEventListener("click", () => {
+      fetchLeagueSchedule(currentSport);
+    });
+
+    leagueSelect.addEventListener("change", () => {
+      selectLeague(leagueSelect.value);
+    });
+
     matchupSelect.addEventListener("change", () => {
-      runAnalysisBtn.disabled = !matchupSelect.value;
+      selectGame(matchupSelect.value);
     });
 
     /**
      * Event Listener: Run Market Analysis
      */
     runAnalysisBtn.addEventListener("click", async () => {
-      const sport = leagueSelect.value;
-      const gameId = matchupSelect.value;
+      const sport = currentSport;
+      const gameId = matchupSelect.value || selectedGameId;
       if (!sport || !gameId) return;
 
       const selectedOption = matchupSelect.options[matchupSelect.selectedIndex];
-      const homeTeam = selectedOption.dataset.homeTeam || "";
-      const awayTeam = selectedOption.dataset.awayTeam || "";
+      const homeTeam = selectedOption ? selectedOption.dataset.homeTeam || "" : "";
+      const awayTeam = selectedOption ? selectedOption.dataset.awayTeam || "" : "";
 
       setLoading(true, "Analyzing Market & Querying AI", "Retrieving consensus odds, calculating no-vig pricing, and generating research assessment...");
       resultsPanel.classList.add("hidden");
@@ -570,13 +885,21 @@
       // 1. Event Info Card
       eventSportBadge.textContent = escapeHtml(event.sport_title || event.sport_key || "SPORTS");
       eventTitle.textContent = `${escapeHtml(event.away_team || "Away")} @ ${escapeHtml(event.home_team || "Home")}`;
-      eventTime.textContent = `Commence: ${formatDate(event.commence_time)}`;
+      eventTime.innerHTML = `
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <span>Commence: <strong class="text-slate-200">${formatDate(event.commence_time)}</strong></span>
+      `;
       eventBooksCount.textContent = math.bookmaker_count !== undefined ? math.bookmaker_count : "—";
 
       // 2. Render Deterministic Market Math Tables
       renderMathTables(math);
 
-      // 3. Render AI Context and Research Assessment
+      // 3. Render Prediction Markets (Polymarket & Kalshi)
+      renderPredictionMarkets(data.prediction_markets || null);
+
+      // 4. Render AI Context and Research Assessment
       renderAiSection(ai, injury);
 
       resultsPanel.classList.remove("hidden");
@@ -601,11 +924,14 @@
         if (!Array.isArray(lineList) || lineList.length === 0) continue;
 
         const catBlock = document.createElement("div");
-        catBlock.className = "bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg space-y-4";
+        catBlock.className = "bg-[#0c1220] border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4";
 
         const headerHtml = `
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-800 pb-3">
-            <h4 class="text-sm font-bold text-white uppercase tracking-wider">${escapeHtml(cat.label)}</h4>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider">${escapeHtml(cat.label)}</h4>
+            </div>
             <span class="text-xs text-slate-400 font-mono">${lineList.length} line${lineList.length > 1 ? 's' : ''} evaluated</span>
           </div>
         `;
@@ -613,17 +939,17 @@
 
         for (const line of lineList) {
           const lineCard = document.createElement("div");
-          lineCard.className = "bg-slate-950/60 border border-slate-800/80 rounded-lg p-4 space-y-3";
+          lineCard.className = "bg-slate-950/70 border border-slate-800/80 rounded-xl p-4 space-y-3";
 
           const overroundDisplay = line.synthetic_best_line_overround !== null && line.synthetic_best_line_overround !== undefined
-            ? `<span class="text-xs text-slate-400">Synthetic Best Overround: <strong class="text-slate-200">${(line.synthetic_best_line_overround * 100).toFixed(2)}%</strong></span>`
+            ? `<span class="text-xs text-slate-400 font-mono">Synthetic Overround: <strong class="text-slate-200 font-semibold">${(line.synthetic_best_line_overround * 100).toFixed(2)}%</strong></span>`
             : `<span class="text-xs text-slate-500 italic">No-vig overround unavailable</span>`;
 
           const lineMeta = `
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-xs font-semibold text-emerald-400">${escapeHtml(line.label)}</span>
+              <span class="text-xs font-bold text-emerald-400 font-mono">${escapeHtml(line.label)}</span>
               <div class="flex items-center gap-3">
-                <span class="text-xs text-slate-400">Observed in <strong class="text-slate-200">${line.books_observed}</strong> books</span>
+                <span class="text-xs text-slate-400">Observed in <strong class="text-slate-200 font-mono">${line.books_observed}</strong> books</span>
                 ${overroundDisplay}
               </div>
             </div>
@@ -639,42 +965,52 @@
 
           for (const oc of outcomes) {
             // Price advantage styling
-            let advantageBadge = `<span class="text-slate-500 text-xs">—</span>`;
+            let advantageBadge = `<span class="text-slate-500 text-xs font-mono">—</span>`;
             if (oc.best_line_price_advantage !== null && oc.best_line_price_advantage !== undefined) {
               const adv = oc.best_line_price_advantage;
               const advPct = (adv * 100).toFixed(2);
               if (adv > 0) {
-                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60">+${advPct}%</span>`;
+                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold font-mono bg-emerald-950 text-emerald-400 border border-emerald-700/80 shadow-sm shadow-emerald-900/30">▲ +${advPct}%</span>`;
               } else if (adv < 0) {
-                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-950/80 text-red-400 border border-red-800/60">${advPct}%</span>`;
+                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold font-mono bg-red-950 text-red-400 border border-red-800/80">▼ ${advPct}%</span>`;
               } else {
-                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs text-slate-400 bg-slate-800">0.00%</span>`;
+                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs text-slate-400 bg-slate-800 font-mono">0.00%</span>`;
               }
             }
 
             const americanPrice = oc.best_price_american > 0 ? `+${oc.best_price_american}` : oc.best_price_american;
-            const breakEvenProb = oc.best_implied_probability ? `${(oc.best_implied_probability * 100).toFixed(1)}%` : "—";
-            const noVigProb = oc.best_line_no_vig_probability ? `${(oc.best_line_no_vig_probability * 100).toFixed(1)}%` : "—";
-            const pointTag = (oc.point !== null && oc.point !== undefined) ? ` <span class="text-slate-400 font-normal">(${oc.point > 0 ? '+' : ''}${oc.point})</span>` : "";
+            const breakEvenProbVal = oc.best_implied_probability ? (oc.best_implied_probability * 100) : null;
+            const noVigProbVal = oc.best_line_no_vig_probability ? (oc.best_line_no_vig_probability * 100) : null;
+
+            const breakEvenProb = breakEvenProbVal !== null ? `${breakEvenProbVal.toFixed(1)}%` : "—";
+            const noVigProb = noVigProbVal !== null ? `${noVigProbVal.toFixed(1)}%` : "—";
+            const pointTag = (oc.point !== null && oc.point !== undefined) ? ` <span class="text-slate-400 font-mono text-[11px] font-normal">(${oc.point > 0 ? '+' : ''}${oc.point})</span>` : "";
 
             rowsHtml += `
-              <tr class="border-b border-slate-800/60 hover:bg-slate-900/50 transition-colors text-xs">
-                <td class="py-2.5 px-3 font-semibold text-slate-100 whitespace-nowrap">
+              <tr class="border-b border-slate-800/60 hover:bg-slate-900/40 transition-colors text-xs">
+                <td class="py-3 px-3 font-bold text-slate-100 whitespace-nowrap">
                   ${escapeHtml(oc.name)}${pointTag}
                 </td>
-                <td class="py-2.5 px-3 text-slate-300 whitespace-nowrap">
-                  <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">${escapeHtml(oc.best_bookmaker || "Market")}</span>
+                <td class="py-3 px-3 text-slate-300 whitespace-nowrap">
+                  <span class="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 font-mono text-[11px] font-medium">${escapeHtml(oc.best_bookmaker || "Consensus")}</span>
                 </td>
-                <td class="py-2.5 px-3 font-mono font-bold text-white whitespace-nowrap">
-                  ${americanPrice} <span class="text-[11px] text-slate-400 font-normal">(${oc.best_price_decimal})</span>
+                <td class="py-3 px-3 font-mono font-bold text-white whitespace-nowrap">
+                  <span class="text-emerald-400">${americanPrice}</span>
+                  <span class="text-[11px] text-slate-500 font-normal ml-1">(${oc.best_price_decimal})</span>
                 </td>
-                <td class="py-2.5 px-3 text-slate-300 font-mono whitespace-nowrap">
-                  ${breakEvenProb}
+                <td class="py-3 px-3 text-slate-300 font-mono whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <span>${breakEvenProb}</span>
+                    ${breakEvenProbVal !== null ? `<div class="w-12 bg-slate-800 rounded-full h-1.5 hidden md:block"><div class="bg-slate-500 h-1.5 rounded-full" style="width: ${Math.min(100, breakEvenProbVal)}%"></div></div>` : ''}
+                  </div>
                 </td>
-                <td class="py-2.5 px-3 text-slate-300 font-mono whitespace-nowrap">
-                  ${noVigProb}
+                <td class="py-3 px-3 text-slate-300 font-mono whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-slate-100">${noVigProb}</span>
+                    ${noVigProbVal !== null ? `<div class="w-12 bg-slate-800 rounded-full h-1.5 hidden md:block"><div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${Math.min(100, noVigProbVal)}%"></div></div>` : ''}
+                  </div>
                 </td>
-                <td class="py-2.5 px-3 whitespace-nowrap">
+                <td class="py-3 px-3 whitespace-nowrap">
                   ${advantageBadge}
                 </td>
               </tr>
@@ -684,13 +1020,13 @@
           tableWrap.innerHTML = `
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider">
-                  <th class="py-2 px-3">Outcome</th>
-                  <th class="py-2 px-3">Best Book</th>
-                  <th class="py-2 px-3">Best Price</th>
-                  <th class="py-2 px-3">Break-even Probability</th>
-                  <th class="py-2 px-3">No-Vig Consensus</th>
-                  <th class="py-2 px-3">Price Advantage</th>
+                <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                  <th class="py-2.5 px-3">Outcome</th>
+                  <th class="py-2.5 px-3">Best Bookmaker</th>
+                  <th class="py-2.5 px-3">Best Odds</th>
+                  <th class="py-2.5 px-3">Break-even Prob</th>
+                  <th class="py-2.5 px-3">No-Vig Consensus</th>
+                  <th class="py-2.5 px-3">Advantage Delta</th>
                 </tr>
               </thead>
               <tbody>
@@ -708,10 +1044,167 @@
 
       if (marketsContainer.children.length === 0) {
         marketsContainer.innerHTML = `
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 text-center text-sm text-slate-400">
+          <div class="bg-[#0c1220] border border-slate-800 rounded-2xl p-6 text-center text-sm text-slate-400">
             No standard two-way markets (moneyline, spreads, totals) were observed for this event.
           </div>
         `;
+      }
+    }
+
+    /**
+     * Render Prediction Markets Section (Polymarket & Kalshi)
+     */
+    function renderPredictionMarkets(pred) {
+      if (!predictionMarketsContainer) return;
+      predictionMarketsContainer.innerHTML = "";
+
+      const poly = pred?.polymarket;
+      const kalshi = pred?.kalshi;
+      const hasPoly = poly?.available && Array.isArray(poly.events) && poly.events.length > 0;
+      const hasKalshi = kalshi?.available && Array.isArray(kalshi.markets) && kalshi.markets.length > 0;
+
+      if (!hasPoly && !hasKalshi) {
+        predictionMarketsContainer.innerHTML = `
+          <div class="bg-[#0c1220] border border-slate-800 rounded-2xl p-6 text-center text-sm text-slate-400">
+            <div class="flex items-center justify-center gap-2 mb-2 text-slate-300 font-semibold">
+              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              No active prediction market contracts found for this matchup.
+            </div>
+            <p class="text-xs text-slate-500 max-w-xl mx-auto">
+              Prediction exchanges like Polymarket (crypto event shares) and Kalshi (CFTC-regulated contracts) list specific high-liquidity matches and series. Continuous coverage varies by event popularity.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      // 1. Polymarket Card
+      if (hasPoly) {
+        const polyBlock = document.createElement("div");
+        polyBlock.className = "bg-[#0c1220] border border-purple-900/40 rounded-2xl p-5 shadow-lg space-y-4";
+        
+        let polyHtml = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-purple-900/30 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                Polymarket
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800">
+                  Global On-Chain Orderbook
+                </span>
+              </h4>
+            </div>
+            <span class="text-xs text-purple-300 font-mono">${poly.events.length} event market${poly.events.length > 1 ? 's' : ''} matched</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        `;
+
+        for (const ev of poly.events) {
+          let marketsListHtml = "";
+          for (const m of (ev.markets || [])) {
+            let outcomesHtml = "";
+            for (const out of (m.outcomes || [])) {
+              const probVal = out.implied_probability !== null ? Math.round(out.implied_probability * 100) : null;
+              outcomesHtml += `
+                <div class="flex items-center justify-between py-1 px-2.5 bg-slate-900/80 rounded-lg text-xs">
+                  <span class="font-medium text-slate-200 truncate pr-2">${escapeHtml(out.name)}</span>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <span class="font-bold text-purple-300 font-mono">${out.probability_percent || out.share_price_cents || "—"}</span>
+                    ${probVal !== null ? `
+                      <div class="w-10 bg-slate-800 rounded-full h-1.5 hidden sm:block">
+                        <div class="bg-purple-500 h-1.5 rounded-full" style="width: ${probVal}%"></div>
+                      </div>
+                    ` : ""}
+                  </div>
+                </div>
+              `;
+            }
+
+            marketsListHtml += `
+              <div class="space-y-1.5 pt-2">
+                <span class="text-[11px] text-slate-400 font-medium block">${escapeHtml(m.question)}</span>
+                <div class="space-y-1">${outcomesHtml}</div>
+              </div>
+            `;
+          }
+
+          polyHtml += `
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <h5 class="text-xs font-bold text-slate-100 truncate">${escapeHtml(ev.title)}</h5>
+                  <a href="${escapeHtml(ev.url)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-purple-400 hover:text-purple-300 underline shrink-0 font-mono">
+                    View Market ↗
+                  </a>
+                </div>
+                ${marketsListHtml}
+              </div>
+            </div>
+          `;
+        }
+
+        polyHtml += `</div>`;
+        polyBlock.innerHTML = polyHtml;
+        predictionMarketsContainer.appendChild(polyBlock);
+      }
+
+      // 2. Kalshi Card
+      if (hasKalshi) {
+        const kalshiBlock = document.createElement("div");
+        kalshiBlock.className = "bg-[#0c1220] border border-blue-900/40 rounded-2xl p-5 shadow-lg space-y-4";
+
+        let kalshiHtml = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-900/30 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                Kalshi
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-800">
+                  CFTC Regulated Exchange
+                </span>
+              </h4>
+            </div>
+            <span class="text-xs text-blue-300 font-mono">${kalshi.markets.length} contract${kalshi.markets.length > 1 ? 's' : ''} matched</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        `;
+
+        for (const km of kalshi.markets) {
+          const probVal = km.implied_probability !== null ? Math.round(km.implied_probability * 100) : null;
+          kalshiHtml += `
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[10px] font-mono text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-900/50 truncate">
+                    ${escapeHtml(km.ticker)}
+                  </span>
+                  <a href="${escapeHtml(km.url)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-400 hover:text-blue-300 underline shrink-0 font-mono">
+                    Trade on Kalshi ↗
+                  </a>
+                </div>
+                <h5 class="text-xs font-bold text-slate-100 mt-2">${escapeHtml(km.title)}</h5>
+                ${km.subtitle ? `<p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(km.subtitle)}</p>` : ""}
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-xs">
+                <span class="text-slate-400">Yes Price (Break-even):</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-blue-300 font-mono">${km.probability_percent || km.last_price_cents || "—"}</span>
+                  ${probVal !== null ? `
+                    <div class="w-10 bg-slate-800 rounded-full h-1.5 hidden sm:block">
+                      <div class="bg-blue-500 h-1.5 rounded-full" style="width: ${probVal}%"></div>
+                    </div>
+                  ` : ""}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        kalshiHtml += `</div>`;
+        kalshiBlock.innerHTML = kalshiHtml;
+        predictionMarketsContainer.appendChild(kalshiBlock);
       }
     }
 
@@ -723,10 +1216,8 @@
       const analysis = ai.analysis || {};
 
       if (!isAiAvailable) {
-        // Show yellow AI unavailable card
         aiUnavailableCard.classList.remove("hidden");
         aiContentCard.classList.add("opacity-60");
-
         aiUnavailableReason.textContent = ai.reason || "Gemini AI research is currently offline or unreachable.";
         
         if (ai.finish_reason) {
@@ -759,9 +1250,9 @@
       // Status badge
       const status = analysis.actionability_status || "insufficient_data";
       aiStatusBadge.textContent = status.replace(/_/g, " ");
-      aiStatusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ";
+      aiStatusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-mono ";
 
-      if (status === "monitor") {
+      if (status === "monitor" || status === "monitor_only") {
         aiStatusBadge.className += "bg-emerald-950 text-emerald-400 border border-emerald-700/80";
       } else if (status === "wait_for_confirmation") {
         aiStatusBadge.className += "bg-amber-950 text-amber-300 border border-amber-700/80";
@@ -804,7 +1295,7 @@
         } else {
           for (const tag of items) {
             const span = document.createElement("span");
-            span.className = `inline-block px-2.5 py-1 rounded text-xs font-medium border ${colorClasses}`;
+            span.className = `inline-block px-2.5 py-1 rounded-md text-xs font-medium border font-mono ${colorClasses}`;
             span.textContent = tag;
             container.appendChild(span);
           }
@@ -814,6 +1305,12 @@
       populateTags(aiQualityFlags, analysis.data_quality_flags, "bg-slate-800 text-slate-300 border-slate-700");
       populateTags(aiMissingInputs, analysis.missing_inputs, "bg-amber-950/40 text-amber-300 border-amber-800/60");
     }
+
+    // Initialize application on load
+    window.addEventListener("DOMContentLoaded", () => {
+      renderLeaguePills();
+      fetchLeagueSchedule(currentSport);
+    });
   </script>
 </body>
 </html>
