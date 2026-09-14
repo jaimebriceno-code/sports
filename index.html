@@ -1,142 +1,365 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Betting Analytics</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sports Market Analytics</title>
+  <meta name="description" content="Event-selection dashboard comparing deterministic market odds and synthetic no-vig consensus with Gemini contextual research." />
+  <meta property="og:title" content="Sports Market Analytics" />
+  <meta property="og:description" content="Event-selection dashboard comparing deterministic market odds and synthetic no-vig consensus with Gemini contextual research." />
+  <meta property="og:type" content="website" />
+  <!-- Tailwind CSS via CDN (No npm or build tools required) -->
   <script src="https://cdn.tailwindcss.com"></script>
-
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d'
+            }
+          }
+        }
+      }
+    };
+  </script>
   <style>
-    body {
-      background-color: #111827;
-    }
-
-    .result-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .result-table th,
-    .result-table td {
-      border-bottom: 1px solid #374151;
-      padding: 0.85rem 0.75rem;
-      vertical-align: top;
-    }
-
-    .result-table th {
-      color: #9ca3af;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .result-table td {
-      color: #d1d5db;
-      font-size: 0.875rem;
-    }
-
-    .result-table tbody tr:last-child td {
-      border-bottom: none;
-    }
+    /* Custom scrollbar for clean dark UI */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
   </style>
 </head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-white">
 
-<body class="bg-gray-900 text-white min-h-screen p-4 md:p-8 font-sans">
-  <main class="max-w-5xl mx-auto space-y-8">
-
-    <header class="border-b border-gray-700 pb-4">
-      <h1 class="text-3xl font-bold text-blue-400">AI Betting Analytics</h1>
-      <p class="text-gray-400 text-sm mt-1">
-        Deterministic odds math with conditional AI research context
-      </p>
-    </header>
-
-    <!-- Sport and game selection -->
-    <section class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg space-y-5">
-      <div>
-        <label
-          for="sportSelect"
-          class="block text-sm font-medium text-gray-300 mb-2"
-        >
-          Select League
-        </label>
-
-        <select
-          id="sportSelect"
-          class="w-full bg-gray-950 border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-blue-500"
-        >
-          <option value="">-- Select Sport --</option>
-          <option value="americanfootball_nfl">NFL Football</option>
-          <option value="basketball_nba">NBA Basketball</option>
-          <option value="baseball_mlb">MLB Baseball</option>
-          <option value="icehockey_nhl">NHL Hockey</option>
-          <option value="soccer_epl">English Premier League (Soccer)</option>
-        </select>
+  <!-- Header & Navigation -->
+  <header id="mainHeader" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-600/20 text-lg">
+          Ω
+        </div>
+        <div>
+          <h1 class="text-base font-semibold text-white leading-tight">Sports Market Analytics</h1>
+          <p class="text-xs text-slate-400">Cross-Market Consensus & Contextual AI Research</p>
+        </div>
       </div>
-
-      <div>
-        <label
-          for="gameSelect"
-          class="block text-sm font-medium text-gray-300 mb-2"
-        >
-          Upcoming Matchup
-        </label>
-
-        <select
-          id="gameSelect"
-          class="w-full bg-gray-950 border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 disabled:opacity-50"
-          disabled
-        >
-          <option value="">Choose a sport above first...</option>
-        </select>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          Live Engine
+        </span>
       </div>
+    </div>
+  </header>
 
-      <button
-        id="analyzeBtn"
-        class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 py-3.5 rounded-lg font-bold text-lg transition shadow-lg cursor-pointer disabled:cursor-not-allowed"
-        disabled
-      >
-        Run Market Analysis
-      </button>
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Controls Section: Sport & Game Selection -->
+    <section id="selectionControls" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+        
+        <!-- League Selector -->
+        <div class="md:col-span-4">
+          <label for="leagueSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            1. Select League
+          </label>
+          <select 
+            id="leagueSelect" 
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+          >
+            <option value="" disabled selected>Choose a supported sport...</option>
+            <option value="americanfootball_nfl">NFL Football</option>
+            <option value="basketball_nba">NBA Basketball</option>
+            <option value="baseball_mlb">MLB Baseball</option>
+            <option value="icehockey_nhl">NHL Hockey</option>
+            <option value="soccer_epl">English Premier League (EPL)</option>
+          </select>
+        </div>
+
+        <!-- Matchup Selector -->
+        <div class="md:col-span-5">
+          <label for="matchupSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            2. Upcoming Matchup
+          </label>
+          <select 
+            id="matchupSelect" 
+            disabled 
+            class="w-full bg-slate-800/60 border border-slate-700/60 rounded-lg px-3.5 py-2.5 text-sm text-slate-400 disabled:cursor-not-allowed focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+          >
+            <option value="" selected>Select a league first...</option>
+          </select>
+        </div>
+
+        <!-- Action Button -->
+        <div class="md:col-span-3">
+          <button 
+            id="runAnalysisBtn" 
+            disabled
+            class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:border-slate-800 text-white font-medium py-2.5 px-4 rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed border border-emerald-500/30"
+          >
+            <svg id="btnIconAnalyze" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <span>Run Market Analysis</span>
+          </button>
+        </div>
+
+      </div>
     </section>
 
-    <!-- Results -->
-    <section
-      id="resultsArea"
-      class="hidden bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg"
-    >
-      <div id="loading" class="hidden flex flex-col items-center py-12">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mb-4"></div>
-        <p class="text-gray-400 text-sm animate-pulse text-center">
-          Computing odds math and requesting AI research context...
-        </p>
+    <!-- Loading Panel -->
+    <div id="loadingPanel" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-8 text-center space-y-4 shadow-xl">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 animate-spin">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+      <div>
+        <h3 id="loadingTitle" class="text-base font-semibold text-slate-100">Gathering Sportsbook Data</h3>
+        <p id="loadingMessage" class="text-xs text-slate-400 mt-1">Retrieving odds lines and calculating deterministic no-vig pricing...</p>
+      </div>
+    </div>
+
+    <!-- Error Panel -->
+    <div id="errorPanel" class="hidden bg-red-950/40 border border-red-800/80 rounded-xl p-5 text-red-200 text-sm flex items-start gap-3 shadow-lg">
+      <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      <div class="flex-1">
+        <h4 class="font-semibold text-red-300">Request Error</h4>
+        <p id="errorMessage" class="text-xs mt-1 text-red-200/90 leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div id="resultsPanel" class="hidden space-y-8">
+      
+      <!-- Matchup Header Info Card -->
+      <div id="eventHeaderCard" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <span id="eventSportBadge" class="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700 mb-2"></span>
+          <h2 id="eventTitle" class="text-xl sm:text-2xl font-bold text-white tracking-tight"></h2>
+          <p id="eventTime" class="text-xs text-slate-400 mt-1 flex items-center gap-1.5"></p>
+        </div>
+        <div class="flex items-center gap-6 border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-6">
+          <div>
+            <span class="block text-xs text-slate-400 uppercase tracking-wider">Books Observed</span>
+            <span id="eventBooksCount" class="text-lg font-bold text-white"></span>
+          </div>
+          <div>
+            <span class="block text-xs text-slate-400 uppercase tracking-wider">Calculation Type</span>
+            <span class="text-xs font-medium text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 px-2 py-0.5 rounded inline-block mt-0.5">Synthetic Cross-Market</span>
+          </div>
+        </div>
       </div>
 
-      <div id="analysisOutput" class="hidden"></div>
-    </section>
+      <!-- SECTION 1: Deterministic Market Math -->
+      <section id="mathSection" class="space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-5 bg-emerald-500 rounded-full"></div>
+            <h3 class="text-lg font-bold text-white tracking-tight">Deterministic Market Math</h3>
+          </div>
+          <span class="text-xs text-slate-400 hidden sm:inline">Calculated via pure client-independent arithmetic</span>
+        </div>
+
+        <!-- Tables Container -->
+        <div id="marketsContainer" class="space-y-6">
+          <!-- Dynamically populated tables for Moneyline, Spreads, Totals -->
+        </div>
+
+        <!-- Methodology & Disclaimer Callout -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-lg p-4 text-xs text-slate-400 leading-relaxed flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div>
+            <strong class="text-slate-300">Methodology Note:</strong> Price advantage represents the mathematical discrepancy between the best available sportsbook quote and the synthetic no-vig market consensus line. It is a cross-market comparison and line-shopping metric, not a validated independent forecast, predictive model, or guaranteed outcome.
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: AI Context and Research Assessment -->
+      <section id="aiSection" class="space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-5 bg-blue-500 rounded-full"></div>
+            <h3 class="text-lg font-bold text-white tracking-tight">AI Context & Research Assessment</h3>
+          </div>
+          <span id="aiModelBadge" class="text-xs text-slate-400 font-mono bg-slate-900 border border-slate-800 px-2.5 py-1 rounded">
+            Gemini Research Agent
+          </span>
+        </div>
+
+        <!-- AI Fallback / Unavailable Card (Shown when ai.available === false) -->
+        <div id="aiUnavailableCard" class="hidden bg-amber-950/30 border border-amber-700/60 rounded-xl p-5 text-amber-200 text-sm space-y-3 shadow-lg">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div class="flex-1">
+              <h4 class="font-semibold text-amber-300 text-base">AI Research Context Unavailable</h4>
+              <p id="aiUnavailableReason" class="text-xs text-amber-200/90 mt-1 leading-relaxed"></p>
+              <div id="aiFinishReasonContainer" class="hidden text-xs text-amber-300 font-mono mt-1.5"></div>
+              <p id="injuryReasonNote" class="text-xs text-amber-400/80 mt-2 italic"></p>
+            </div>
+          </div>
+          <details id="aiRawPreviewDetails" class="hidden text-xs bg-amber-950/60 border border-amber-800/80 rounded-lg p-3">
+            <summary class="cursor-pointer text-amber-300 font-medium hover:text-amber-200">View Raw Diagnostics</summary>
+            <pre id="aiRawPreviewText" class="mt-2 text-[11px] text-amber-200/80 whitespace-pre-wrap break-all font-mono"></pre>
+          </details>
+        </div>
+
+        <!-- AI Content Card -->
+        <div id="aiContentCard" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl space-y-6">
+          
+          <!-- Summary & Status -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-slate-800">
+            <div class="md:col-span-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Executive Summary</span>
+              <p id="aiSummary" class="text-sm text-slate-200 leading-relaxed"></p>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 flex flex-col justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Research Status</span>
+              <div class="mt-2">
+                <span id="aiStatusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monitoring Guidance -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
+            <div>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Market to Monitor</h4>
+              <div class="bg-slate-800/40 border border-slate-800 rounded-lg p-3.5 text-sm font-medium text-emerald-400" id="aiMarketToMonitor"></div>
+            </div>
+            <div>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Conditions to Verify</h4>
+              <ul id="aiConditionsList" class="space-y-1.5 text-xs text-slate-300 list-disc list-inside"></ul>
+            </div>
+          </div>
+
+          <!-- Rationale -->
+          <div class="pb-6 border-b border-slate-800">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Analytical Rationale</h4>
+            <p id="aiRationale" class="text-sm text-slate-300 leading-relaxed"></p>
+          </div>
+
+          <!-- Assessments Grid: Injury & Market Observations -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
+            <div class="bg-slate-800/30 border border-slate-800/80 rounded-lg p-4">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Injury & Availability Assessment
+              </h4>
+              <ul id="aiInjuryList" class="space-y-1.5 text-xs text-slate-300 list-disc list-inside"></ul>
+            </div>
+
+            <div class="bg-slate-800/30 border border-slate-800/80 rounded-lg p-4">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2">
+                <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Market Observations
+              </h4>
+              <ul id="aiMarketObsList" class="space-y-1.5 text-xs text-slate-300 list-disc list-inside"></ul>
+            </div>
+          </div>
+
+          <!-- Quality Flags & Missing Inputs -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
+            <div>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Data Quality Flags</h4>
+              <div id="aiQualityFlags" class="flex flex-wrap gap-2"></div>
+            </div>
+            <div>
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Missing Inputs</h4>
+              <div id="aiMissingInputs" class="flex flex-wrap gap-2"></div>
+            </div>
+          </div>
+
+          <!-- Conclusion -->
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Conclusion</h4>
+            <p id="aiConclusion" class="text-sm font-medium text-slate-200 leading-relaxed"></p>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
 
   </main>
 
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 mt-16 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>Sports Market Analytics • Cloudflare Worker & GitHub Pages Integration</p>
+      <p class="text-[11px] text-slate-600">Odds data provided via The Odds API. AI contextual assessment via Google Gemini. For informational comparison only.</p>
+    </div>
+  </footer>
+
+  <!-- Frontend Application Logic -->
   <script>
-    /*
-      This must match your deployed Cloudflare Worker URL.
-      Do not add a trailing slash after .dev.
-    */
-    const WORKER_URL =
-      "https://sports-betting-ai.jaime-briceno.workers.dev";
+    /**
+     * Constant Cloudflare Worker Backend URL
+     */
+    const WORKER_URL = "https://sports-betting-ai.jaime-briceno.workers.dev";
 
-    const sportSelect = document.getElementById("sportSelect");
-    const gameSelect = document.getElementById("gameSelect");
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const resultsArea = document.getElementById("resultsArea");
-    const loading = document.getElementById("loading");
-    const analysisOutput = document.getElementById("analysisOutput");
+    // DOM Elements
+    const leagueSelect = document.getElementById("leagueSelect");
+    const matchupSelect = document.getElementById("matchupSelect");
+    const runAnalysisBtn = document.getElementById("runAnalysisBtn");
+    const loadingPanel = document.getElementById("loadingPanel");
+    const loadingTitle = document.getElementById("loadingTitle");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const errorPanel = document.getElementById("errorPanel");
+    const errorMessage = document.getElementById("errorMessage");
+    const resultsPanel = document.getElementById("resultsPanel");
 
-    function escapeHtml(value) {
-      return String(value ?? "")
+    // Event Info Elements
+    const eventSportBadge = document.getElementById("eventSportBadge");
+    const eventTitle = document.getElementById("eventTitle");
+    const eventTime = document.getElementById("eventTime");
+    const eventBooksCount = document.getElementById("eventBooksCount");
+    const marketsContainer = document.getElementById("marketsContainer");
+
+    // AI Elements
+    const aiUnavailableCard = document.getElementById("aiUnavailableCard");
+    const aiUnavailableReason = document.getElementById("aiUnavailableReason");
+    const aiFinishReasonContainer = document.getElementById("aiFinishReasonContainer");
+    const injuryReasonNote = document.getElementById("injuryReasonNote");
+    const aiRawPreviewDetails = document.getElementById("aiRawPreviewDetails");
+    const aiRawPreviewText = document.getElementById("aiRawPreviewText");
+
+    const aiContentCard = document.getElementById("aiContentCard");
+    const aiSummary = document.getElementById("aiSummary");
+    const aiStatusBadge = document.getElementById("aiStatusBadge");
+    const aiMarketToMonitor = document.getElementById("aiMarketToMonitor");
+    const aiConditionsList = document.getElementById("aiConditionsList");
+    const aiRationale = document.getElementById("aiRationale");
+    const aiInjuryList = document.getElementById("aiInjuryList");
+    const aiMarketObsList = document.getElementById("aiMarketObsList");
+    const aiQualityFlags = document.getElementById("aiQualityFlags");
+    const aiMissingInputs = document.getElementById("aiMissingInputs");
+    const aiConclusion = document.getElementById("aiConclusion");
+
+    /**
+     * Escape HTML helper to prevent XSS vulnerabilities
+     */
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -144,746 +367,453 @@
         .replace(/'/g, "&#039;");
     }
 
-    function formatPercent(value, decimals = 2) {
-      const number = Number(value);
-
-      if (!Number.isFinite(number)) {
-        return "—";
-      }
-
-      return `${(number * 100).toFixed(decimals)}%`;
-    }
-
-    function formatAmericanOdds(value) {
-      const number = Number(value);
-
-      if (!Number.isFinite(number)) {
-        return "—";
-      }
-
-      return number > 0 ? `+${number}` : String(number);
-    }
-
-    function formatDate(value) {
-      if (!value) {
-        return "Live / TBD";
-      }
-
-      const date = new Date(value);
-
-      if (Number.isNaN(date.getTime())) {
-        return "Live / TBD";
-      }
-
-      return date.toLocaleString([], {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
-    function formatMarketName(marketKey) {
-      const names = {
-        h2h: "Moneyline",
-        spreads: "Point Spread",
-        totals: "Game Total"
-      };
-
-      return names[marketKey] || String(marketKey || "Market");
-    }
-
-    function formatActionabilityStatus(status) {
-      return String(status || "insufficient_data")
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (letter) => letter.toUpperCase());
-    }
-
-    function getActionabilityStyle(status) {
-      const styles = {
-        monitor: "border-blue-400 bg-blue-500/10 text-blue-100",
-        wait_for_confirmation:
-          "border-yellow-400 bg-yellow-500/10 text-yellow-100",
-        insufficient_data: "border-gray-500 bg-gray-950/60 text-gray-200",
-        no_clear_discrepancy:
-          "border-gray-500 bg-gray-950/60 text-gray-200"
-      };
-
-      return styles[status] || styles.insufficient_data;
-    }
-
-    function getPriceAdvantageStyle(value) {
-      const number = Number(value);
-
-      if (!Number.isFinite(number)) {
-        return "text-gray-400";
-      }
-
-      if (number > 0) {
-        return "text-emerald-300";
-      }
-
-      if (number < 0) {
-        return "text-red-300";
-      }
-
-      return "text-gray-300";
-    }
-
-    function renderStringList(items, emptyMessage, listClass = "text-gray-300") {
-      if (!Array.isArray(items) || items.length === 0) {
-        return `
-          <p class="text-sm ${listClass}">
-            ${escapeHtml(emptyMessage)}
-          </p>
-        `;
-      }
-
-      return `
-        <ul class="list-disc pl-5 space-y-1 text-sm ${listClass}">
-          ${items.map((item) => `
-            <li>${escapeHtml(item)}</li>
-          `).join("")}
-        </ul>
-      `;
-    }
-
-    function renderMarketGroup(marketKey, group) {
-      const outcomes = Array.isArray(group?.outcomes)
-        ? group.outcomes
-        : [];
-
-      const tableRows = outcomes.map((outcome) => {
-        const point =
-          outcome.point !== null &&
-          outcome.point !== undefined &&
-          outcome.point !== ""
-            ? ` (${outcome.point})`
-            : "";
-
-        return `
-          <tr>
-            <td>
-              <div class="font-semibold text-white">
-                ${escapeHtml(outcome.name)}${escapeHtml(point)}
-              </div>
-
-              <div class="text-xs text-gray-500 mt-1">
-                Best at ${escapeHtml(outcome.best_bookmaker || "—")}
-              </div>
-            </td>
-
-            <td class="text-right text-blue-300 font-semibold">
-              ${formatAmericanOdds(outcome.best_price_american)}
-            </td>
-
-            <td class="text-right">
-              ${formatPercent(outcome.best_implied_probability)}
-            </td>
-
-            <td class="text-right">
-              ${formatPercent(outcome.best_line_no_vig_probability)}
-            </td>
-
-            <td class="text-right font-semibold ${getPriceAdvantageStyle(outcome.best_line_price_advantage)}">
-              ${formatPercent(outcome.best_line_price_advantage)}
-            </td>
-          </tr>
-        `;
-      }).join("");
-
-      return `
-        <article class="border border-gray-700 rounded-lg overflow-hidden mb-5">
-          <div class="bg-gray-950/70 px-4 py-4">
-            <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
-              <div>
-                <h3 class="font-bold text-white">
-                  ${escapeHtml(group.label || formatMarketName(marketKey))}
-                </h3>
-
-                <p class="text-xs text-gray-400 mt-2 leading-relaxed">
-                  ${escapeHtml(group.note || "")}
-                </p>
-              </div>
-
-              <div class="text-xs text-gray-400 md:text-right whitespace-nowrap">
-                <div>
-                  Books observed:
-                  ${escapeHtml(group.books_observed ?? 0)}
-                </div>
-
-                <div class="mt-1">
-                  Best-line overround:
-                  ${formatPercent(group.synthetic_best_line_overround)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          ${
-            outcomes.length === 0
-              ? `
-                <div class="p-4 text-sm text-gray-400">
-                  No usable outcomes were returned for this market.
-                </div>
-              `
-              : `
-                <div class="overflow-x-auto">
-                  <table class="result-table min-w-[760px]">
-                    <thead class="bg-gray-800">
-                      <tr>
-                        <th class="text-left">Outcome</th>
-                        <th class="text-right">Best Price</th>
-                        <th class="text-right">Break-even</th>
-                        <th class="text-right">No-Vig Consensus</th>
-                        <th class="text-right">Price Advantage</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      ${tableRows}
-                    </tbody>
-                  </table>
-                </div>
-              `
-          }
-        </article>
-      `;
-    }
-
-    function renderMath(math) {
-      const event = math?.event || {};
-      const markets = math?.markets || {};
-      const marketEntries = Object.entries(markets);
-
-      let html = `
-        <section>
-          <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-5">
-            <div>
-              <h2 class="text-2xl font-bold text-blue-300">
-                Deterministic Market Math
-              </h2>
-
-              <p class="text-sm text-gray-400 mt-1">
-                These values are computed inside Cloudflare from sportsbook prices,
-                not produced by Gemini.
-              </p>
-            </div>
-
-            <div class="text-xs text-gray-500 md:text-right">
-              <div>
-                Generated:
-                ${escapeHtml(
-                  math?.generated_at
-                    ? formatDate(math.generated_at)
-                    : "—"
-                )}
-              </div>
-
-              <div class="mt-1">
-                Books observed:
-                ${escapeHtml(math?.bookmaker_count ?? 0)}
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-gray-950/60 border border-gray-700 rounded-lg p-4 mb-5">
-            <div class="font-bold text-lg text-white">
-              ${escapeHtml(event.away_team || "Away Team")} @
-              ${escapeHtml(event.home_team || "Home Team")}
-            </div>
-
-            <div class="text-sm text-gray-400 mt-2">
-              ${escapeHtml(event.sport_title || event.sport_key || "Sport")}
-              ${
-                event.commence_time
-                  ? ` · ${escapeHtml(formatDate(event.commence_time))}`
-                  : ""
-              }
-            </div>
-          </div>
-      `;
-
-      if (marketEntries.length === 0) {
-        html += `
-          <div class="border border-yellow-500/40 bg-yellow-500/10 rounded-lg p-4">
-            <p class="font-bold text-yellow-100">No usable odds markets returned</p>
-            <p class="text-sm text-yellow-100/80 mt-2">
-              The Worker did not receive enough matching outcomes to calculate
-              a valid two-way market comparison.
-            </p>
-          </div>
-        `;
-      }
-
-      marketEntries.forEach(([marketKey, marketGroups]) => {
-        const groups = Array.isArray(marketGroups)
-          ? marketGroups
-          : [];
-
-        groups.forEach((group) => {
-          html += renderMarketGroup(marketKey, group);
+    /**
+     * Format UTC ISO date to localized human-readable string
+     */
+    function formatDate(isoString) {
+      if (!isoString) return "TBD";
+      try {
+        const d = new Date(isoString);
+        return d.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit"
         });
-      });
-
-      html += `
-          <div class="border border-gray-700 bg-gray-950/40 rounded-lg p-4 text-sm text-gray-400">
-            <p>
-              <span class="font-semibold text-gray-200">Break-even probability:</span>
-              the probability implied by the best listed sportsbook price.
-            </p>
-
-            <p class="mt-2">
-              <span class="font-semibold text-gray-200">No-vig consensus:</span>
-              a normalized market estimate after removing the synthetic two-way
-              best-line margin.
-            </p>
-
-            <p class="mt-2">
-              <span class="font-semibold text-gray-200">Price advantage:</span>
-              the difference between the no-vig consensus and the best price’s
-              break-even probability. It is a price-comparison signal, not a
-              validated independent forecast or guaranteed outcome.
-            </p>
-          </div>
-        </section>
-      `;
-
-      return html;
-    }
-
-    function renderAiAnalysis(ai, injuryData) {
-      if (!ai?.available) {
-        const rawPreview = ai?.raw_preview
-          ? `
-            <details class="mt-4">
-              <summary class="cursor-pointer text-xs text-yellow-100/70">
-                Show Gemini response preview for debugging
-              </summary>
-
-              <pre class="mt-3 max-h-52 overflow-auto whitespace-pre-wrap break-words text-xs text-yellow-50/70 bg-gray-950/60 border border-yellow-500/20 rounded p-3">${escapeHtml(ai.raw_preview)}</pre>
-            </details>
-          `
-          : "";
-
-        return `
-          <section class="mt-8 pt-7 border-t border-gray-700">
-            <h2 class="text-2xl font-bold text-yellow-200">
-              AI Research Context Unavailable
-            </h2>
-
-            <div class="mt-4 border border-yellow-500/40 bg-yellow-500/10 rounded-lg p-5">
-              <p class="text-yellow-100">
-                Deterministic odds calculations completed, but Gemini did not
-                return a usable structured research assessment.
-              </p>
-
-              <p class="text-sm text-yellow-100/80 mt-3">
-                ${escapeHtml(ai?.reason || "No Gemini error detail was supplied.")}
-              </p>
-
-              ${
-                ai?.finish_reason
-                  ? `
-                    <p class="text-xs text-yellow-100/60 mt-3">
-                      Gemini finish reason:
-                      ${escapeHtml(ai.finish_reason)}
-                    </p>
-                  `
-                  : ""
-              }
-
-              ${rawPreview}
-            </div>
-
-            <div class="mt-4 bg-gray-950/50 border border-gray-700 rounded-lg p-4">
-              <p class="text-sm text-gray-400">
-                <span class="font-semibold text-gray-300">Injury data status:</span>
-                ${escapeHtml(
-                  injuryData?.reason ||
-                  "No injury-data status was supplied by the Worker."
-                )}
-              </p>
-            </div>
-          </section>
-        `;
+      } catch (e) {
+        return isoString;
       }
-
-      const analysis = ai.analysis || {};
-
-      /*
-        This maps the flattened fields returned by your current Worker
-        into one object the display code can use.
-      */
-      const actionability = {
-        status:
-          analysis.actionability_status ||
-          "insufficient_data",
-
-        market_to_monitor:
-          analysis.market_to_monitor ||
-          "No market specified",
-
-        conditions: Array.isArray(analysis.conditions_to_verify)
-          ? analysis.conditions_to_verify
-          : [],
-
-        rationale:
-          analysis.rationale ||
-          "No rationale was returned."
-      };
-
-      return `
-        <section class="mt-8 pt-7 border-t border-gray-700">
-          <div>
-            <h2 class="text-2xl font-bold text-purple-300">
-              AI Context and Research Assessment
-            </h2>
-
-            <p class="text-sm text-gray-400 mt-1">
-              Gemini interprets supplied context only. It does not calculate or
-              alter the odds math displayed above.
-            </p>
-          </div>
-
-          <article class="bg-gray-950/60 border border-gray-700 rounded-lg p-5 mt-5">
-            <h3 class="font-bold text-white">Summary</h3>
-
-            <p class="text-sm text-gray-300 leading-relaxed mt-3">
-              ${escapeHtml(analysis.summary || "No AI summary was returned.")}
-            </p>
-          </article>
-
-          <article class="mt-5 border rounded-lg p-5 ${getActionabilityStyle(actionability.status)}">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-              <h3 class="font-bold">
-                Research Status:
-                ${escapeHtml(formatActionabilityStatus(actionability.status))}
-              </h3>
-
-              <span class="text-xs uppercase tracking-wide opacity-80">
-                Conditional research only
-              </span>
-            </div>
-
-            <p class="text-sm mt-4">
-              <span class="font-semibold">Market to monitor:</span>
-              ${escapeHtml(actionability.market_to_monitor)}
-            </p>
-
-            <p class="text-sm leading-relaxed mt-3">
-              ${escapeHtml(actionability.rationale)}
-            </p>
-
-            ${
-              actionability.conditions.length > 0
-                ? `
-                  <div class="mt-4">
-                    <p class="text-sm font-semibold">Conditions to verify</p>
-
-                    <ul class="list-disc pl-5 mt-2 text-sm space-y-1">
-                      ${actionability.conditions.map((item) => `
-                        <li>${escapeHtml(item)}</li>
-                      `).join("")}
-                    </ul>
-                  </div>
-                `
-                : ""
-            }
-          </article>
-
-          <div class="mt-7">
-            <h3 class="text-lg font-bold text-white mb-3">
-              Injury and Availability Assessment
-            </h3>
-
-            ${
-              Array.isArray(analysis.injury_assessment) &&
-              analysis.injury_assessment.length > 0
-                ? `
-                  <div class="space-y-3">
-                    ${analysis.injury_assessment.map((item) => `
-                      <article class="bg-gray-950/50 border border-gray-700 rounded-lg p-4">
-                        <p class="text-sm text-gray-300 leading-relaxed">
-                          ${escapeHtml(item)}
-                        </p>
-                      </article>
-                    `).join("")}
-                  </div>
-                `
-                : `
-                  <div class="bg-gray-950/50 border border-gray-700 rounded-lg p-4">
-                    <p class="text-sm text-gray-400">
-                      No verified player-specific injury assessment was returned.
-                      This normally means a game-specific injury or lineup provider
-                      has not yet been connected to the Worker.
-                    </p>
-                  </div>
-                `
-            }
-          </div>
-
-          <div class="mt-7">
-            <h3 class="text-lg font-bold text-white mb-3">
-              Market Observations
-            </h3>
-
-            ${
-              Array.isArray(analysis.market_observations) &&
-              analysis.market_observations.length > 0
-                ? `
-                  <div class="space-y-3">
-                    ${analysis.market_observations.map((item) => `
-                      <article class="bg-gray-950/50 border border-gray-700 rounded-lg p-4">
-                        <p class="text-sm text-gray-300 leading-relaxed">
-                          ${escapeHtml(item)}
-                        </p>
-                      </article>
-                    `).join("")}
-                  </div>
-                `
-                : `
-                  <p class="text-sm text-gray-400">
-                    Gemini did not return additional market observations.
-                  </p>
-                `
-            }
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-4 mt-7">
-            <article class="border border-yellow-500/30 bg-yellow-500/10 rounded-lg p-4">
-              <h3 class="font-bold text-yellow-100">Data Quality Flags</h3>
-
-              <div class="mt-3">
-                ${renderStringList(
-                  analysis.data_quality_flags,
-                  "No data-quality flags were returned.",
-                  "text-yellow-50/85"
-                )}
-              </div>
-            </article>
-
-            <article class="border border-gray-700 bg-gray-950/50 rounded-lg p-4">
-              <h3 class="font-bold text-gray-200">Missing Inputs</h3>
-
-              <div class="mt-3">
-                ${renderStringList(
-                  analysis.missing_inputs,
-                  "No missing inputs were returned."
-                )}
-              </div>
-            </article>
-          </div>
-
-          <article class="mt-7 border-l-4 border-purple-400 bg-purple-500/10 p-5">
-            <h3 class="font-bold text-purple-200">Conclusion</h3>
-
-            <p class="text-sm text-purple-50/90 leading-relaxed mt-3">
-              ${escapeHtml(analysis.conclusion || "No conclusion was returned.")}
-            </p>
-          </article>
-        </section>
-      `;
     }
 
-    function showError(message) {
-      resultsArea.classList.remove("hidden");
-      loading.classList.add("hidden");
-      analysisOutput.classList.remove("hidden");
-
-      analysisOutput.innerHTML = `
-        <div class="border border-red-500/40 bg-red-500/10 rounded-lg p-5">
-          <h2 class="font-bold text-red-300">Request Error</h2>
-          <p class="text-sm text-red-100/80 mt-2">
-            ${escapeHtml(message)}
-          </p>
-        </div>
-      `;
+    /**
+     * Display or hide error message
+     */
+    function showError(msg) {
+      if (!msg) {
+        errorPanel.classList.add("hidden");
+        errorMessage.textContent = "";
+      } else {
+        errorPanel.classList.remove("hidden");
+        errorMessage.textContent = msg;
+      }
     }
 
-    async function readJsonResponse(response) {
-      const rawText = await response.text();
+    /**
+     * Toggle loading state on UI controls
+     */
+    function setLoading(isLoading, title = "Gathering Sportsbook Data", message = "Retrieving odds and computing cross-market math...") {
+      if (isLoading) {
+        loadingTitle.textContent = title;
+        loadingMessage.textContent = message;
+        loadingPanel.classList.remove("hidden");
+        leagueSelect.disabled = true;
+        matchupSelect.disabled = true;
+        runAnalysisBtn.disabled = true;
+        showError(null);
+      } else {
+        loadingPanel.classList.add("hidden");
+        leagueSelect.disabled = false;
+        matchupSelect.disabled = matchupSelect.options.length <= 1;
+        runAnalysisBtn.disabled = !matchupSelect.value;
+      }
+    }
+
+    /**
+     * Event Listener: League selection changed -> fetch upcoming games
+     */
+    leagueSelect.addEventListener("change", async () => {
+      const sport = leagueSelect.value;
+      if (!sport) return;
+
+      // Reset Matchup dropdown
+      matchupSelect.innerHTML = "";
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Loading matchups...";
+      matchupSelect.appendChild(defaultOption);
+      matchupSelect.disabled = true;
+      runAnalysisBtn.disabled = true;
+      resultsPanel.classList.add("hidden");
+
+      setLoading(true, "Loading League Schedule", `Fetching upcoming games for ${leagueSelect.options[leagueSelect.selectedIndex].text}...`);
 
       try {
-        return rawText ? JSON.parse(rawText) : null;
-      } catch {
-        throw new Error(
-          `Worker returned invalid JSON (HTTP ${response.status}): ` +
-          rawText.slice(0, 300)
-        );
-      }
-    }
+        const targetUrl = `${WORKER_URL}?sport=${encodeURIComponent(sport)}`;
+        const res = await fetch(targetUrl, {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
 
-    async function fetchGames() {
-      const sport = sportSelect.value;
-
-      analyzeBtn.disabled = true;
-      gameSelect.disabled = true;
-
-      gameSelect.innerHTML = `
-        <option value="">
-          ${sport ? "Loading upcoming games..." : "Choose a sport above first..."}
-        </option>
-      `;
-
-      if (!sport) {
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `${WORKER_URL}?sport=${encodeURIComponent(sport)}`,
-          {
-            method: "GET",
-            headers: {
-              "Accept": "application/json"
-            }
-          }
-        );
-
-        const data = await readJsonResponse(response);
-
-        if (!response.ok || data?.success === false) {
-          throw new Error(
-            data?.error ||
-            `Unable to load games. Worker returned HTTP ${response.status}.`
-          );
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          throw new Error(`Worker returned non-JSON response (${res.status}): ${text.slice(0, 150)}`);
         }
 
-        /*
-          New Worker format:
-          { success: true, games: [...] }
+        if (!res.ok || (data.success === false)) {
+          throw new Error(data.error || `HTTP ${res.status} occurred while loading schedule.`);
+        }
 
-          This also supports the older raw-array format:
-          [...]
-        */
-        const games = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.games)
-            ? data.games
-            : [];
+        // Support standard { success: true, games: [...] } and raw array fallback
+        const games = Array.isArray(data.games) ? data.games : (Array.isArray(data) ? data : []);
 
+        matchupSelect.innerHTML = "";
         if (games.length === 0) {
-          gameSelect.innerHTML = `
-            <option value="">No upcoming games found for this sport</option>
-          `;
-          return;
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "No upcoming games found for this league.";
+          matchupSelect.appendChild(opt);
+          matchupSelect.disabled = true;
+        } else {
+          const defaultSelectOpt = document.createElement("option");
+          defaultSelectOpt.value = "";
+          defaultSelectOpt.textContent = `Select from ${games.length} upcoming matchups...`;
+          defaultSelectOpt.disabled = true;
+          defaultSelectOpt.selected = true;
+          matchupSelect.appendChild(defaultSelectOpt);
+
+          for (const game of games) {
+            const opt = document.createElement("option");
+            opt.value = game.id;
+            // Store raw team names safely in dataset
+            opt.dataset.homeTeam = game.home_team;
+            opt.dataset.awayTeam = game.away_team;
+            opt.textContent = `${game.away_team} @ ${game.home_team} (${formatDate(game.commence_time)})`;
+            matchupSelect.appendChild(opt);
+          }
+
+          matchupSelect.disabled = false;
         }
-
-        gameSelect.innerHTML = `
-          <option value="">-- Select a Game --</option>
-        `;
-
-        games.forEach((game) => {
-          const option = document.createElement("option");
-
-          option.value = game.id || "";
-          option.dataset.homeTeam = game.home_team || "";
-          option.dataset.awayTeam = game.away_team || "";
-
-          option.textContent =
-            `${game.away_team || "Away Team"} @ ` +
-            `${game.home_team || "Home Team"} ` +
-            `(${formatDate(game.commence_time)})`;
-
-          gameSelect.appendChild(option);
-        });
-
-        gameSelect.disabled = false;
-      } catch (error) {
-        console.error("fetchGames failed:", error);
-
-        gameSelect.disabled = true;
-        analyzeBtn.disabled = true;
-
-        gameSelect.innerHTML = `
-          <option value="">
-            Error loading games: ${escapeHtml(error.message)}
-          </option>
-        `;
+      } catch (err) {
+        showError(`Failed to load matchups: ${err.message}`);
+        matchupSelect.innerHTML = "";
+        const errOpt = document.createElement("option");
+        errOpt.value = "";
+        errOpt.textContent = "Error loading matchups. Retry league selection.";
+        matchupSelect.appendChild(errOpt);
+        matchupSelect.disabled = true;
+      } finally {
+        setLoading(false);
       }
-    }
+    });
 
-    async function runAnalysis() {
-      const sport = sportSelect.value;
-      const gameId = gameSelect.value;
-      const selectedOption = gameSelect.options[gameSelect.selectedIndex];
+    /**
+     * Event Listener: Matchup dropdown selection
+     */
+    matchupSelect.addEventListener("change", () => {
+      runAnalysisBtn.disabled = !matchupSelect.value;
+    });
 
-      if (!sport || !gameId || !selectedOption) {
-        showError("Please select a league and matchup first.");
-        return;
-      }
+    /**
+     * Event Listener: Run Market Analysis
+     */
+    runAnalysisBtn.addEventListener("click", async () => {
+      const sport = leagueSelect.value;
+      const gameId = matchupSelect.value;
+      if (!sport || !gameId) return;
 
+      const selectedOption = matchupSelect.options[matchupSelect.selectedIndex];
       const homeTeam = selectedOption.dataset.homeTeam || "";
       const awayTeam = selectedOption.dataset.awayTeam || "";
 
-      resultsArea.classList.remove("hidden");
-      loading.classList.remove("hidden");
-      analysisOutput.classList.add("hidden");
-      analysisOutput.innerHTML = "";
-
-      analyzeBtn.disabled = true;
-      gameSelect.disabled = true;
-      sportSelect.disabled = true;
+      setLoading(true, "Analyzing Market & Querying AI", "Retrieving consensus odds, calculating no-vig pricing, and generating research assessment...");
+      resultsPanel.classList.add("hidden");
 
       try {
-        const response = await fetch(WORKER_URL, {
+        const payload = {
+          sport,
+          gameId,
+          homeTeam,
+          awayTeam
+        };
+
+        const res = await fetch(WORKER_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          body: JSON.stringify({
-            sport,
-            gameId,
-            homeTeam,
-            awayTeam
-          })
+          body: JSON.stringify(payload)
         });
 
-        const data = await readJsonResponse(response);
-
-        if (!response.ok || !data?.success) {
-          throw new Error(
-            data?.error ||
-            `Analysis failed. Worker returned HTTP ${response.status}.`
-          );
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error(`Worker returned non-JSON response (${res.status}): ${text.slice(0, 200)}`);
         }
 
-        analysisOutput.innerHTML = `
-          ${renderMath(data.math)}
-          ${renderAiAnalysis(data.ai, data.injury_data)}
+        if (!res.ok || (data.success === false)) {
+          throw new Error(data.error || `HTTP ${res.status} returned during analysis.`);
+        }
 
-          <footer class="mt-7 pt-5 border-t border-gray-700">
-            <p class="text-xs text-gray-500 leading-relaxed">
-              ${escapeHtml(
-                data.disclaimer ||
-                "Market math is calculated from sportsbook odds. AI commentary is conditional research context and does not guarantee an outcome."
-              )}
-            </p>
-          </footer>
-        `;
-
-        loading.classList.add("hidden");
-        analysisOutput.classList.remove("hidden");
-      } catch (error) {
-        console.error("runAnalysis failed:", error);
-        showError(error.message);
+        renderAnalysisResults(data);
+      } catch (err) {
+        showError(`Analysis failed: ${err.message}`);
       } finally {
-        sportSelect.disabled = false;
-        gameSelect.disabled = !gameSelect.value;
-        analyzeBtn.disabled = !gameSelect.value;
+        setLoading(false);
+      }
+    });
+
+    /**
+     * Render complete analysis response: Event Info, Math, and AI Context
+     */
+    function renderAnalysisResults(data) {
+      const event = data.event || {};
+      const math = data.math || {};
+      const ai = data.ai || {};
+      const injury = data.injury_data || {};
+
+      // 1. Event Info Card
+      eventSportBadge.textContent = escapeHtml(event.sport_title || event.sport_key || "SPORTS");
+      eventTitle.textContent = `${escapeHtml(event.away_team || "Away")} @ ${escapeHtml(event.home_team || "Home")}`;
+      eventTime.textContent = `Commence: ${formatDate(event.commence_time)}`;
+      eventBooksCount.textContent = math.bookmaker_count !== undefined ? math.bookmaker_count : "—";
+
+      // 2. Render Deterministic Market Math Tables
+      renderMathTables(math);
+
+      // 3. Render AI Context and Research Assessment
+      renderAiSection(ai, injury);
+
+      resultsPanel.classList.remove("hidden");
+      resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    /**
+     * Render tables for Moneyline (h2h), Spreads, and Totals
+     */
+    function renderMathTables(math) {
+      marketsContainer.innerHTML = "";
+      const markets = math.markets || {};
+
+      const categories = [
+        { key: "h2h", label: "Moneyline (H2H)" },
+        { key: "spreads", label: "Spreads" },
+        { key: "totals", label: "Totals (Over / Under)" }
+      ];
+
+      for (const cat of categories) {
+        const lineList = markets[cat.key];
+        if (!Array.isArray(lineList) || lineList.length === 0) continue;
+
+        const catBlock = document.createElement("div");
+        catBlock.className = "bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg space-y-4";
+
+        const headerHtml = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-800 pb-3">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">${escapeHtml(cat.label)}</h4>
+            <span class="text-xs text-slate-400 font-mono">${lineList.length} line${lineList.length > 1 ? 's' : ''} evaluated</span>
+          </div>
+        `;
+        catBlock.innerHTML = headerHtml;
+
+        for (const line of lineList) {
+          const lineCard = document.createElement("div");
+          lineCard.className = "bg-slate-950/60 border border-slate-800/80 rounded-lg p-4 space-y-3";
+
+          const overroundDisplay = line.synthetic_best_line_overround !== null && line.synthetic_best_line_overround !== undefined
+            ? `<span class="text-xs text-slate-400">Synthetic Best Overround: <strong class="text-slate-200">${(line.synthetic_best_line_overround * 100).toFixed(2)}%</strong></span>`
+            : `<span class="text-xs text-slate-500 italic">No-vig overround unavailable</span>`;
+
+          const lineMeta = `
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-semibold text-emerald-400">${escapeHtml(line.label)}</span>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400">Observed in <strong class="text-slate-200">${line.books_observed}</strong> books</span>
+                ${overroundDisplay}
+              </div>
+            </div>
+          `;
+          lineCard.innerHTML = lineMeta;
+
+          // Build Table
+          const tableWrap = document.createElement("div");
+          tableWrap.className = "overflow-x-auto";
+
+          let rowsHtml = "";
+          const outcomes = Array.isArray(line.outcomes) ? line.outcomes : [];
+
+          for (const oc of outcomes) {
+            // Price advantage styling
+            let advantageBadge = `<span class="text-slate-500 text-xs">—</span>`;
+            if (oc.best_line_price_advantage !== null && oc.best_line_price_advantage !== undefined) {
+              const adv = oc.best_line_price_advantage;
+              const advPct = (adv * 100).toFixed(2);
+              if (adv > 0) {
+                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60">+${advPct}%</span>`;
+              } else if (adv < 0) {
+                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-950/80 text-red-400 border border-red-800/60">${advPct}%</span>`;
+              } else {
+                advantageBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs text-slate-400 bg-slate-800">0.00%</span>`;
+              }
+            }
+
+            const americanPrice = oc.best_price_american > 0 ? `+${oc.best_price_american}` : oc.best_price_american;
+            const breakEvenProb = oc.best_implied_probability ? `${(oc.best_implied_probability * 100).toFixed(1)}%` : "—";
+            const noVigProb = oc.best_line_no_vig_probability ? `${(oc.best_line_no_vig_probability * 100).toFixed(1)}%` : "—";
+            const pointTag = (oc.point !== null && oc.point !== undefined) ? ` <span class="text-slate-400 font-normal">(${oc.point > 0 ? '+' : ''}${oc.point})</span>` : "";
+
+            rowsHtml += `
+              <tr class="border-b border-slate-800/60 hover:bg-slate-900/50 transition-colors text-xs">
+                <td class="py-2.5 px-3 font-semibold text-slate-100 whitespace-nowrap">
+                  ${escapeHtml(oc.name)}${pointTag}
+                </td>
+                <td class="py-2.5 px-3 text-slate-300 whitespace-nowrap">
+                  <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[11px]">${escapeHtml(oc.best_bookmaker || "Market")}</span>
+                </td>
+                <td class="py-2.5 px-3 font-mono font-bold text-white whitespace-nowrap">
+                  ${americanPrice} <span class="text-[11px] text-slate-400 font-normal">(${oc.best_price_decimal})</span>
+                </td>
+                <td class="py-2.5 px-3 text-slate-300 font-mono whitespace-nowrap">
+                  ${breakEvenProb}
+                </td>
+                <td class="py-2.5 px-3 text-slate-300 font-mono whitespace-nowrap">
+                  ${noVigProb}
+                </td>
+                <td class="py-2.5 px-3 whitespace-nowrap">
+                  ${advantageBadge}
+                </td>
+              </tr>
+            `;
+          }
+
+          tableWrap.innerHTML = `
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase tracking-wider">
+                  <th class="py-2 px-3">Outcome</th>
+                  <th class="py-2 px-3">Best Book</th>
+                  <th class="py-2 px-3">Best Price</th>
+                  <th class="py-2 px-3">Break-even Probability</th>
+                  <th class="py-2 px-3">No-Vig Consensus</th>
+                  <th class="py-2 px-3">Price Advantage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          `;
+
+          lineCard.appendChild(tableWrap);
+          catBlock.appendChild(lineCard);
+        }
+
+        marketsContainer.appendChild(catBlock);
+      }
+
+      if (marketsContainer.children.length === 0) {
+        marketsContainer.innerHTML = `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 text-center text-sm text-slate-400">
+            No standard two-way markets (moneyline, spreads, totals) were observed for this event.
+          </div>
+        `;
       }
     }
 
-    sportSelect.addEventListener("change", fetchGames);
+    /**
+     * Render AI Research Assessment Section
+     */
+    function renderAiSection(ai, injury) {
+      const isAiAvailable = ai.available === true;
+      const analysis = ai.analysis || {};
 
-    gameSelect.addEventListener("change", () => {
-      analyzeBtn.disabled = !gameSelect.value;
-    });
+      if (!isAiAvailable) {
+        // Show yellow AI unavailable card
+        aiUnavailableCard.classList.remove("hidden");
+        aiContentCard.classList.add("opacity-60");
 
-    analyzeBtn.addEventListener("click", runAnalysis);
+        aiUnavailableReason.textContent = ai.reason || "Gemini AI research is currently offline or unreachable.";
+        
+        if (ai.finish_reason) {
+          aiFinishReasonContainer.textContent = `Finish Reason: ${escapeHtml(ai.finish_reason)}`;
+          aiFinishReasonContainer.classList.remove("hidden");
+        } else {
+          aiFinishReasonContainer.classList.add("hidden");
+        }
+
+        if (injury && injury.reason) {
+          injuryReasonNote.textContent = `Injury Data Provider: ${escapeHtml(injury.reason)}`;
+        } else {
+          injuryReasonNote.textContent = "";
+        }
+
+        if (ai.raw_preview) {
+          aiRawPreviewDetails.classList.remove("hidden");
+          aiRawPreviewText.textContent = ai.raw_preview;
+        } else {
+          aiRawPreviewDetails.classList.add("hidden");
+        }
+      } else {
+        aiUnavailableCard.classList.add("hidden");
+        aiContentCard.classList.remove("opacity-60");
+      }
+
+      // Populate AI Content
+      aiSummary.textContent = analysis.summary || "No summary provided.";
+
+      // Status badge
+      const status = analysis.actionability_status || "insufficient_data";
+      aiStatusBadge.textContent = status.replace(/_/g, " ");
+      aiStatusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ";
+
+      if (status === "monitor") {
+        aiStatusBadge.className += "bg-emerald-950 text-emerald-400 border border-emerald-700/80";
+      } else if (status === "wait_for_confirmation") {
+        aiStatusBadge.className += "bg-amber-950 text-amber-300 border border-amber-700/80";
+      } else if (status === "insufficient_data") {
+        aiStatusBadge.className += "bg-yellow-950 text-yellow-400 border border-yellow-800/80";
+      } else {
+        aiStatusBadge.className += "bg-slate-800 text-slate-300 border border-slate-700";
+      }
+
+      aiMarketToMonitor.textContent = analysis.market_to_monitor || "None identified";
+      aiRationale.textContent = analysis.rationale || "No rationale provided.";
+      aiConclusion.textContent = analysis.conclusion || "No conclusion provided.";
+
+      // Populate Lists helper
+      function populateList(element, items) {
+        element.innerHTML = "";
+        if (!Array.isArray(items) || items.length === 0) {
+          const li = document.createElement("li");
+          li.className = "text-slate-500 italic";
+          li.textContent = "None observed";
+          element.appendChild(li);
+        } else {
+          for (const item of items) {
+            const li = document.createElement("li");
+            li.textContent = item;
+            element.appendChild(li);
+          }
+        }
+      }
+
+      populateList(aiConditionsList, analysis.conditions_to_verify);
+      populateList(aiInjuryList, analysis.injury_assessment);
+      populateList(aiMarketObsList, analysis.market_observations);
+
+      // Quality Flags & Missing Inputs Tags
+      function populateTags(container, items, colorClasses) {
+        container.innerHTML = "";
+        if (!Array.isArray(items) || items.length === 0) {
+          container.innerHTML = `<span class="text-xs text-slate-500 italic">None reported</span>`;
+        } else {
+          for (const tag of items) {
+            const span = document.createElement("span");
+            span.className = `inline-block px-2.5 py-1 rounded text-xs font-medium border ${colorClasses}`;
+            span.textContent = tag;
+            container.appendChild(span);
+          }
+        }
+      }
+
+      populateTags(aiQualityFlags, analysis.data_quality_flags, "bg-slate-800 text-slate-300 border-slate-700");
+      populateTags(aiMissingInputs, analysis.missing_inputs, "bg-amber-950/40 text-amber-300 border-amber-800/60");
+    }
   </script>
 </body>
 </html>
