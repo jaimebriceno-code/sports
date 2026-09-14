@@ -27,17 +27,12 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-2">Select League</label>
         <select id="sportSelect" class="w-full bg-gray-950 border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-blue-500" onchange="fetchGames()">
-        <option value="">-- Choose a Sport --</option>
-        <!-- American Sports -->
+          <option value="">-- Select Sport --</option>
           <option value="americanfootball_nfl">NFL Football</option>
           <option value="basketball_nba">NBA Basketball</option>
           <option value="baseball_mlb">MLB Baseball</option>
           <option value="icehockey_nhl">NHL Hockey</option>
-  
-        <!-- Soccer / Global Leagues -->
           <option value="soccer_epl">English Premier League (Soccer)</option>
-          <option value="soccer_spain_la_liga">La Liga (Soccer)</option>
-        </select>
         </select>
       </div>
 
@@ -57,7 +52,7 @@
     <div id="resultsArea" class="hidden bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
       <div id="loading" class="hidden flex flex-col items-center py-12">
         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mb-4"></div>
-        <p class="text-gray-400 text-sm animate-pulse">Analyzing odds discrepancies & calculating EV...</p>
+        <p class="text-gray-400 text-sm animate-pulse">Analyzing odds discrepancies & prediction markets...</p>
       </div>
       
       <div id="analysisOutput" class="prose max-w-none hidden"></div>
@@ -66,7 +61,6 @@
   </div>
 
   <script>
-    // Hardcoded live endpoint (No secret keys needed)
     const WORKER_URL = 'https://sports-betting-ai.jaime-briceno.workers.dev';
 
     async function fetchGames() {
@@ -74,7 +68,12 @@
       const gameSelect = document.getElementById('gameSelect');
       const analyzeBtn = document.getElementById('analyzeBtn');
       
-      if (!sport) return;
+      if (!sport) {
+        gameSelect.disabled = true;
+        gameSelect.innerHTML = '<option value="">Choose a sport above first...</option>';
+        analyzeBtn.disabled = true;
+        return;
+      }
 
       gameSelect.disabled = true;
       gameSelect.innerHTML = '<option>Loading live games from Cloudflare...</option>';
@@ -82,30 +81,37 @@
 
       try {
         const res = await fetch(`${WORKER_URL}?sport=${sport}`);
-        if (!res.ok) throw new Error('Failed to fetch events');
-        const games = await res.json();
+        const data = await res.json();
         
-        gameSelect.innerHTML = '<option value="">-- Choose a Game --</option>';
-        games.forEach(game => {
-          const date = new Date(game.commence_time).toLocaleString([], {weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'});
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to fetch events');
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          gameSelect.innerHTML = '<option value="">No upcoming games found for this sport</option>';
+          return;
+        }
+        
+        gameSelect.innerHTML = '<option value="">-- Select a Game --</option>';
+        data.forEach(game => {
+          const date = game.commence_time ? new Date(game.commence_time).toLocaleString([], {weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) : 'Live / TBD';
           gameSelect.innerHTML += `<option value="${game.id}">${game.away_team} @ ${game.home_team} (${date})</option>`;
         });
         
         gameSelect.disabled = false;
         gameSelect.onchange = () => analyzeBtn.disabled = !gameSelect.value;
       } catch (e) {
-        gameSelect.innerHTML = '<option>Error loading games. Check worker status.</option>';
+        gameSelect.innerHTML = `<option value="">Error: ${e.message}</option>`;
       }
     }
 
-   async function runAnalysis() {
+    async function runAnalysis() {
       const sport = document.getElementById('sportSelect').value;
       const gameSelect = document.getElementById('gameSelect');
       const gameId = gameSelect.value;
       
-      // Grab the text of the selected option to extract home/away names
       const selectedOptionText = gameSelect.options[gameSelect.selectedIndex].text;
-      const teams = selectedOptionText.split('(')[0].trim(); // e.g., "Denver Broncos @ Kansas City Chiefs"
+      const teams = selectedOptionText.split('(')[0].trim();
       const teamParts = teams.split('@');
       const awayTeam = teamParts[0] ? teamParts[0].trim() : '';
       const homeTeam = teamParts[1] ? teamParts[1].trim() : '';
@@ -134,8 +140,6 @@
         document.getElementById('analysisOutput').innerHTML = `<p class="text-red-400 font-bold">Error: ${e.message}</p>`;
       } finally {
         document.getElementById('analyzeBtn').disabled = false;
-      }
-    }
       }
     }
   </script>
