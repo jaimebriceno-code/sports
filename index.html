@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sports Market Analytics</title>
-  <meta name="description" content="Event-selection dashboard comparing deterministic market odds and synthetic no-vig consensus with Gemini contextual research." />
+  <meta name="description" content="Event-selection dashboard comparing deterministic market odds, prediction markets, and real-time scraped game-day beat news with Gemini contextual research." />
   <meta property="og:title" content="Sports Market Analytics" />
-  <meta property="og:description" content="Event-selection dashboard comparing deterministic market odds and synthetic no-vig consensus with Gemini contextual research." />
+  <meta property="og:description" content="Event-selection dashboard comparing deterministic market odds, prediction markets, and real-time scraped game-day beat news with Gemini contextual research." />
   <meta property="og:type" content="website" />
 
   <!-- Fonts: Inter Display & JetBrains Mono for High-Precision Financial Readability -->
@@ -45,6 +45,68 @@
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Sports News Component CSS */
+    .sports-news-container {
+      background: linear-gradient(135deg, rgba(12, 18, 32, 0.92) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(51, 65, 85, 0.65);
+      backdrop-filter: blur(14px);
+    }
+    .news-card-hover {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .news-card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 18px -4px rgba(16, 185, 129, 0.18);
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+    .pulse-radar {
+      position: relative;
+    }
+    .pulse-radar::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      background: inherit;
+      animation: radar-pulse 2s infinite cubic-bezier(0.24, 0, 0.38, 1);
+      z-index: 0;
+    }
+    @keyframes radar-pulse {
+      0% { transform: scale(1); opacity: 0.85; }
+      70% { transform: scale(2.3); opacity: 0; }
+      100% { transform: scale(2.3); opacity: 0; }
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Outlets Branding Badges */
+    .badge-espn { background: rgba(220, 38, 38, 0.15); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.4); }
+    .badge-the-athletic { background: rgba(30, 41, 59, 0.8); color: #f1f5f9; border: 1px solid rgba(148, 163, 184, 0.4); }
+    .badge-cbs-sports { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4); }
+    .badge-yahoo-sports { background: rgba(147, 51, 234, 0.15); color: #c084fc; border: 1px solid rgba(147, 51, 234, 0.4); }
+    .badge-bleacher-report { background: rgba(234, 88, 12, 0.15); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.4); }
+    .badge-default { background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.6); }
+
+    /* Category Badges */
+    .cat-badge-injury { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .cat-badge-lineup { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4); }
+    .cat-badge-breaking { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .cat-badge-preview { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .cat-badge-beat { background: rgba(51, 65, 85, 0.6); color: #94a3b8; border: 1px solid rgba(71, 85, 105, 0.6); }
   </style>
 </head>
 <body class="bg-[#070b14] text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-black">
@@ -184,6 +246,41 @@
       </div>
     </section>
 
+    <!-- Game Day News Quick Bar (Triggers immediately on game selection) -->
+    <section id="gameNewsQuickBar" class="hidden sports-news-container rounded-2xl p-5 shadow-xl transition-all mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-3 rounded-full bg-emerald-400 pulse-radar shrink-0"></div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="text-sm font-bold text-white uppercase tracking-tight">Today's Game Day Beat & News</h3>
+              <span id="quickBarGameTitle" class="text-xs font-semibold text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded-md"></span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Real-time scraped beat coverage, injury status, and gameday updates</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="quickBarRefreshBtn" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700/80 rounded-lg text-xs font-semibold text-slate-200 transition-all cursor-pointer">
+            <svg id="quickBarRefreshIcon" class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span id="quickBarRefreshText">Scrape Game News</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick News Stream Container -->
+      <div id="quickNewsFeed" class="mt-3.5">
+        <div class="text-center py-4 text-xs text-slate-400 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-emerald-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Scraping today's beat news and team injury reports...</span>
+        </div>
+      </div>
+    </section>
+
     <!-- Loading Panel -->
     <div id="loadingPanel" class="hidden bg-slate-900/90 border border-slate-800 rounded-2xl p-8 text-center space-y-4 shadow-2xl">
       <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 animate-spin">
@@ -279,12 +376,82 @@
         </div>
       </section>
 
-      <!-- SECTION 3: AI Context and Research Assessment -->
+      <!-- SECTION 3: Game Day Beat & Sports News (Real-Time Scraped Feed) -->
+      <section id="sportsNewsSection" class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-5 bg-amber-500 rounded-full"></div>
+            <h3 class="text-base font-bold text-white tracking-tight uppercase">Game Day Beat & Sports News</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="newsArticlesCountBadge" class="text-xs text-amber-400 font-mono bg-amber-950/60 border border-amber-800/80 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span id="newsArticlesCountText">Live Day's Coverage</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- News Card Wrapper -->
+        <div class="sports-news-container rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+          <!-- Filters & Search Bar -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <!-- Category Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 lg:pb-0" id="newsCategoryPills">
+              <button data-cat="all" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-pointer transition-all">All Stories</button>
+              <button data-cat="injury" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/90 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer transition-all">🩹 Injuries & Roster</button>
+              <button data-cat="lineup" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/90 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer transition-all">📋 Lineups</button>
+              <button data-cat="preview" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/90 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer transition-all">🔍 Matchup Previews</button>
+              <button data-cat="breaking" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/90 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer transition-all">⚡ Breaking</button>
+            </div>
+
+            <!-- Team & Search Controls -->
+            <div class="flex flex-col sm:flex-row items-center gap-2.5">
+              <div class="flex items-center bg-slate-900/90 border border-slate-700/80 rounded-xl p-0.5 text-xs font-medium" id="newsTeamToggleGroup">
+                <button id="teamFilterAll" class="px-2.5 py-1 rounded-lg text-emerald-400 bg-slate-800 font-semibold transition-all cursor-pointer">Both Teams</button>
+                <button id="teamFilterAway" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-slate-200 transition-all cursor-pointer">Away</button>
+                <button id="teamFilterHome" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-slate-200 transition-all cursor-pointer">Home</button>
+              </div>
+
+              <div class="relative w-full sm:w-60">
+                <input 
+                  type="text" 
+                  id="newsSearchInput"
+                  placeholder="Filter news by player, coach..." 
+                  class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Articles Grid -->
+          <div id="newsArticlesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Deep Search Bar for Outlets -->
+          <div class="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">
+            <span class="flex items-center gap-1.5 text-slate-400">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+              <span>Direct beat outlets for this matchup:</span>
+            </span>
+            <div class="flex flex-wrap items-center gap-2" id="deepSearchButtons">
+              <!-- Dynamically populated buttons -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: AI Context and Research Assessment -->
       <section id="aiSection" class="space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-2 h-5 bg-blue-500 rounded-full"></div>
-            <h3 class="text-base font-bold text-white tracking-tight uppercase">AI Context & Research Assessment</h3>
+            <h3 class="text-base font-bold text-white tracking-tight uppercase">AI Context & Multi-Source Research Assessment</h3>
           </div>
           <span id="aiModelBadge" class="text-xs text-slate-400 font-mono bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-md">
             Gemini Research Agent
@@ -481,6 +648,32 @@
     const aiQualityFlags = document.getElementById("aiQualityFlags");
     const aiMissingInputs = document.getElementById("aiMissingInputs");
     const aiConclusion = document.getElementById("aiConclusion");
+
+    // Sports News DOM Elements & State
+    let cachedGameNews = [];
+    let activeNewsFilter = "all";
+    let activeNewsTeamFilter = "all";
+    let newsSearchQuery = "";
+    let isNewsLoading = false;
+    let currentNewsMatchup = { home: "", away: "" };
+
+    const gameNewsQuickBar = document.getElementById("gameNewsQuickBar");
+    const quickBarGameTitle = document.getElementById("quickBarGameTitle");
+    const quickBarRefreshBtn = document.getElementById("quickBarRefreshBtn");
+    const quickBarRefreshIcon = document.getElementById("quickBarRefreshIcon");
+    const quickBarRefreshText = document.getElementById("quickBarRefreshText");
+    const quickNewsFeed = document.getElementById("quickNewsFeed");
+
+    const sportsNewsSection = document.getElementById("sportsNewsSection");
+    const newsArticlesCountBadge = document.getElementById("newsArticlesCountBadge");
+    const newsArticlesCountText = document.getElementById("newsArticlesCountText");
+    const newsArticlesGrid = document.getElementById("newsArticlesGrid");
+    const newsSearchInput = document.getElementById("newsSearchInput");
+    const deepSearchButtons = document.getElementById("deepSearchButtons");
+    const newsCategoryPills = document.getElementById("newsCategoryPills");
+    const teamFilterAll = document.getElementById("teamFilterAll");
+    const teamFilterAway = document.getElementById("teamFilterAway");
+    const teamFilterHome = document.getElementById("teamFilterHome");
 
     /**
      * Escape HTML helper
@@ -779,8 +972,11 @@
       const chosenGame = cachedGames.find(g => g.id === gameId);
       if (chosenGame) {
         btnTextAnalyze.textContent = `Analyze ${chosenGame.away_team.split(' ').pop()} @ ${chosenGame.home_team.split(' ').pop()}`;
+        // Automatically scrape day's news for this matchup upon selection
+        fetchGameNewsClient(chosenGame.home_team, chosenGame.away_team, currentSport);
       } else {
         btnTextAnalyze.textContent = "Analyze Market";
+        if (gameNewsQuickBar) gameNewsQuickBar.classList.add("hidden");
       }
 
       if (autoScrollToButton && runAnalysisBtn) {
@@ -899,7 +1095,13 @@
       // 3. Render Prediction Markets (Polymarket & Kalshi)
       renderPredictionMarkets(data.prediction_markets || null);
 
-      // 4. Render AI Context and Research Assessment
+      // 4. Render Sports News (Real-Time Scraped Feed)
+      if (Array.isArray(data.game_news) && data.game_news.length > 0) {
+        cachedGameNews = data.game_news;
+      }
+      renderSportsNews(event.home_team, event.away_team);
+
+      // 5. Render AI Context and Multi-Source Research Assessment
       renderAiSection(ai, injury);
 
       resultsPanel.classList.remove("hidden");
@@ -1304,6 +1506,393 @@
 
       populateTags(aiQualityFlags, analysis.data_quality_flags, "bg-slate-800 text-slate-300 border-slate-700");
       populateTags(aiMissingInputs, analysis.missing_inputs, "bg-amber-950/40 text-amber-300 border-amber-800/60");
+    }
+
+    /**
+     * Get CSS class for News Outlet source badge
+     */
+    function getSourceBadgeClass(source) {
+      const s = (source || "").toLowerCase();
+      if (s.includes("espn")) return "badge-espn";
+      if (s.includes("athletic") || s.includes("nytimes")) return "badge-the-athletic";
+      if (s.includes("cbs")) return "badge-cbs-sports";
+      if (s.includes("yahoo")) return "badge-yahoo-sports";
+      if (s.includes("bleacher") || s.includes("b/r")) return "badge-bleacher-report";
+      return "badge-default";
+    }
+
+    /**
+     * Get CSS class for News Category badge
+     */
+    function getCategoryBadgeClass(categoryType) {
+      switch (categoryType) {
+        case "injury": return "cat-badge-injury";
+        case "lineup": return "cat-badge-lineup";
+        case "breaking": return "cat-badge-breaking";
+        case "preview": return "cat-badge-preview";
+        default: return "cat-badge-beat";
+      }
+    }
+
+    /**
+     * Fetch real-time scraped sports news for the selected matchup
+     */
+    async function fetchGameNewsClient(homeTeam, awayTeam, sportKey, forceRefresh = false) {
+      if (!homeTeam || !awayTeam) return;
+
+      currentNewsMatchup = { home: homeTeam, away: awayTeam, sport: sportKey };
+      isNewsLoading = true;
+
+      // Reveal Quick Bar immediately with loading status
+      if (gameNewsQuickBar) {
+        gameNewsQuickBar.classList.remove("hidden");
+        quickBarGameTitle.textContent = `${awayTeam} @ ${homeTeam}`;
+        quickBarRefreshIcon.classList.add("animate-spin");
+        quickBarRefreshText.textContent = "Scraping...";
+        quickNewsFeed.innerHTML = `
+          <div class="py-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Scraping today's beat coverage, injury reports, and lineup updates for ${escapeHtml(awayTeam)} vs ${escapeHtml(homeTeam)}...</span>
+          </div>
+        `;
+      }
+
+      let fetchedArticles = [];
+
+      try {
+        // 1. Try Cloudflare Worker endpoint
+        const workerNewsUrl = `${WORKER_URL}?action=news&home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}&sport=${encodeURIComponent(sportKey || "")}`;
+        const resp = await fetch(workerNewsUrl, {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && Array.isArray(data.articles) && data.articles.length > 0) {
+            fetchedArticles = data.articles;
+          }
+        }
+      } catch (err) {
+        // Fallback or offline
+      }
+
+      // 2. Client-side fallback via CORS RSS proxy if worker returned no articles
+      if (fetchedArticles.length === 0) {
+        try {
+          const cleanAway = awayTeam.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+          const cleanHome = homeTeam.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+          const q = `"${cleanAway.split(' ').pop()}" "${cleanHome.split(' ').pop()}" when:48h`;
+          const targetRss = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
+          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetRss)}`;
+
+          const proxyResp = await fetch(proxyUrl, { method: "GET" });
+          if (proxyResp.ok) {
+            const xmlText = await proxyResp.text();
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
+
+            const parsed = [];
+            items.forEach((item, index) => {
+              if (index >= 12) return;
+              let title = item.querySelector("title")?.textContent || "";
+              let link = item.querySelector("link")?.textContent || "#";
+              let pubDate = item.querySelector("pubDate")?.textContent || "";
+              let source = item.querySelector("source")?.textContent || "";
+
+              if (!source && title.includes(" - ")) {
+                const parts = title.split(" - ");
+                source = parts.pop().trim();
+                title = parts.join(" - ").trim();
+              }
+
+              const lower = title.toLowerCase();
+              let category = "Beat Report";
+              let categoryType = "beat";
+              let isBreaking = false;
+
+              if (lower.match(/\b(injury|injuries|injured|out|doubtful|questionable|inactive|ir|concussion|knee|ankle|hamstring|status)\b/)) {
+                category = "Injury & Roster";
+                categoryType = "injury";
+              } else if (lower.match(/\b(starting|lineup|lineups|depth chart|bench|rotation|start|starters)\b/)) {
+                category = "Lineup & Starters";
+                categoryType = "lineup";
+              } else if (lower.match(/\b(breaking|trade|fired|hired|deal|contract|suspended)\b/)) {
+                category = "Breaking News";
+                categoryType = "breaking";
+                isBreaking = true;
+              } else if (lower.match(/\b(prediction|preview|odds|pick|spread|analysis)\b/)) {
+                category = "Matchup Preview";
+                categoryType = "preview";
+              }
+
+              parsed.push({
+                title,
+                link,
+                source: source || "Sports News",
+                pub_date: pubDate,
+                time_ago: "Today",
+                category,
+                category_type: categoryType,
+                team_tag: "Matchup",
+                is_breaking: isBreaking
+              });
+            });
+
+            if (parsed.length > 0) {
+              fetchedArticles = parsed;
+            }
+          }
+        } catch (rssErr) {
+          // Continue to fallback
+        }
+      }
+
+      cachedGameNews = fetchedArticles;
+      isNewsLoading = false;
+
+      if (quickBarRefreshIcon) quickBarRefreshIcon.classList.remove("animate-spin");
+      if (quickBarRefreshText) quickBarRefreshText.textContent = "Scrape Game News";
+
+      renderSportsNews(homeTeam, awayTeam);
+    }
+
+    /**
+     * Render Sports News in both the Quick Bar and the Main Section
+     */
+    function renderSportsNews(homeTeam = currentNewsMatchup.home, awayTeam = currentNewsMatchup.away) {
+      if (!homeTeam && !awayTeam) return;
+
+      const cleanHome = (homeTeam || "").trim();
+      const cleanAway = (awayTeam || "").trim();
+      const homeNick = cleanHome.split(" ").pop().toLowerCase();
+      const awayNick = cleanAway.split(" ").pop().toLowerCase();
+
+      // Filter articles according to active pills, team toggle, and search
+      const filtered = cachedGameNews.filter(article => {
+        // 1. Category Filter
+        if (activeNewsFilter !== "all" && article.category_type !== activeNewsFilter) {
+          return false;
+        }
+
+        // 2. Team Filter
+        if (activeNewsTeamFilter === "away") {
+          const t = (article.title + " " + (article.team_tag || "")).toLowerCase();
+          if (!t.includes(awayNick) && !t.includes(cleanAway.toLowerCase())) return false;
+        } else if (activeNewsTeamFilter === "home") {
+          const t = (article.title + " " + (article.team_tag || "")).toLowerCase();
+          if (!t.includes(homeNick) && !t.includes(cleanHome.toLowerCase())) return false;
+        }
+
+        // 3. Search query
+        if (newsSearchQuery) {
+          const fullText = `${article.title} ${article.source} ${article.category} ${article.team_tag}`.toLowerCase();
+          if (!fullText.includes(newsSearchQuery)) return false;
+        }
+
+        return true;
+      });
+
+      // Update articles count badge in Section 3
+      if (newsArticlesCountText) {
+        newsArticlesCountText.textContent = `${cachedGameNews.length} Stories Scraped Today`;
+      }
+
+      // 1. Render Quick Bar Feed (compact top 3 highlights)
+      if (quickNewsFeed) {
+        if (cachedGameNews.length === 0) {
+          quickNewsFeed.innerHTML = `
+            <div class="py-3 px-4 rounded-xl bg-slate-900/50 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <span class="text-slate-400">No syndicated stories scraped in last 48h. Direct beat reporting available below.</span>
+              <div class="flex items-center gap-2">
+                <a href="https://news.google.com/search?q=${encodeURIComponent(`${cleanAway} vs ${cleanHome} sports`)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold text-[11px] flex items-center gap-1">
+                  Google News Search &rarr;
+                </a>
+              </div>
+            </div>
+          `;
+        } else {
+          const topStories = cachedGameNews.slice(0, 3);
+          quickNewsFeed.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              ${topStories.map(story => `
+                <a href="${escapeHtml(story.link)}" target="_blank" rel="noopener noreferrer" class="group block p-3 rounded-xl bg-slate-900/80 hover:bg-slate-850 border border-slate-800 hover:border-emerald-500/40 transition-all">
+                  <div class="flex items-center justify-between gap-2 mb-1.5">
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${getCategoryBadgeClass(story.category_type)}">
+                      ${escapeHtml(story.category)}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(story.time_ago || "Today")}</span>
+                  </div>
+                  <h4 class="text-xs font-semibold text-slate-200 group-hover:text-emerald-400 line-clamp-2 transition-colors">
+                    ${escapeHtml(story.title)}
+                  </h4>
+                  <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                    <span class="font-medium truncate max-w-[120px] text-slate-400">${escapeHtml(story.source)}</span>
+                    <span class="text-emerald-400 text-[10px] flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                      Read &rarr;
+                    </span>
+                  </div>
+                </a>
+              `).join("")}
+            </div>
+          `;
+        }
+      }
+
+      // 2. Render Main Grid in Section 3
+      if (newsArticlesGrid) {
+        if (filtered.length === 0) {
+          newsArticlesGrid.innerHTML = `
+            <div class="col-span-full py-8 text-center bg-slate-900/40 border border-slate-800/80 rounded-xl space-y-3">
+              <p class="text-sm text-slate-300 font-medium">No articles matched the selected filter.</p>
+              <p class="text-xs text-slate-500">Try selecting "All Stories" or clearing your search term.</p>
+              <button onclick="resetNewsFilters()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer transition-all">
+                Reset News Filters
+              </button>
+            </div>
+          `;
+        } else {
+          newsArticlesGrid.innerHTML = filtered.map(article => `
+            <article class="news-card-hover rounded-xl p-4 bg-slate-900/60 border border-slate-800/90 flex flex-col justify-between gap-3 shadow-md">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${getCategoryBadgeClass(article.category_type)}">
+                      ${escapeHtml(article.category)}
+                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md ${getSourceBadgeClass(article.source)}">
+                      ${escapeHtml(article.source)}
+                    </span>
+                  </div>
+                  <span class="text-[11px] font-mono text-slate-400 whitespace-nowrap">${escapeHtml(article.time_ago || "Today")}</span>
+                </div>
+                <h4 class="text-sm font-semibold text-slate-100 leading-snug line-clamp-2 hover:text-emerald-400 transition-colors">
+                  <a href="${escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                    ${escapeHtml(article.title)}
+                  </a>
+                </h4>
+              </div>
+
+              <div class="pt-2 border-t border-slate-800/70 flex items-center justify-between text-xs">
+                <span class="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full ${article.team_tag === 'Both Teams' ? 'bg-indigo-400' : 'bg-emerald-400'}"></span>
+                  ${escapeHtml(article.team_tag || "Matchup")}
+                </span>
+                <a href="${escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors">
+                  <span>Read Article</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            </article>
+          `).join("");
+        }
+      }
+
+      // 3. Render Direct Beat Outlets Buttons
+      if (deepSearchButtons) {
+        const queryTerm = encodeURIComponent(`${cleanAway} vs ${cleanHome} sports`);
+        const espnTerm = encodeURIComponent(`${cleanAway} ${cleanHome}`);
+        deepSearchButtons.innerHTML = `
+          <a href="https://news.google.com/search?q=${queryTerm}&hl=en-US&gl=US&ceid=US:en" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white transition-all">
+            Google News Feed &nearr;
+          </a>
+          <a href="https://www.espn.com/search/_/q/${espnTerm}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-red-500/60 text-slate-300 hover:text-red-400 transition-all">
+            ESPN Beat &nearr;
+          </a>
+          <a href="https://www.cbssports.com/search/all/${espnTerm}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-blue-500/60 text-slate-300 hover:text-blue-400 transition-all">
+            CBS Sports &nearr;
+          </a>
+          <a href="https://bleacherreport.com/search?q=${espnTerm}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-orange-500/60 text-slate-300 hover:text-orange-400 transition-all">
+            Bleacher Report &nearr;
+          </a>
+        `;
+      }
+    }
+
+    /**
+     * Reset News Filters
+     */
+    function resetNewsFilters() {
+      activeNewsFilter = "all";
+      activeNewsTeamFilter = "all";
+      newsSearchQuery = "";
+      if (newsSearchInput) newsSearchInput.value = "";
+      updateCategoryPillStyles();
+      updateTeamToggleStyles();
+      renderSportsNews();
+    }
+
+    /**
+     * Update Category Filter Pill Button Styles
+     */
+    function updateCategoryPillStyles() {
+      if (!newsCategoryPills) return;
+      const btns = newsCategoryPills.querySelectorAll(".news-filter-btn");
+      btns.forEach(btn => {
+        const cat = btn.dataset.cat;
+        if (cat === activeNewsFilter) {
+          btn.className = "news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-pointer transition-all";
+        } else {
+          btn.className = "news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900/90 text-slate-400 border border-slate-800 hover:text-slate-200 cursor-pointer transition-all";
+        }
+      });
+    }
+
+    /**
+     * Update Team Toggle Styles
+     */
+    function updateTeamToggleStyles() {
+      if (!teamFilterAll || !teamFilterAway || !teamFilterHome) return;
+      const allBtns = [teamFilterAll, teamFilterAway, teamFilterHome];
+      allBtns.forEach(b => {
+        b.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-slate-200 transition-all cursor-pointer";
+      });
+      if (activeNewsTeamFilter === "all") {
+        teamFilterAll.className = "px-2.5 py-1 rounded-lg text-emerald-400 bg-slate-800 font-semibold transition-all cursor-pointer";
+      } else if (activeNewsTeamFilter === "away") {
+        teamFilterAway.className = "px-2.5 py-1 rounded-lg text-emerald-400 bg-slate-800 font-semibold transition-all cursor-pointer";
+      } else if (activeNewsTeamFilter === "home") {
+        teamFilterHome.className = "px-2.5 py-1 rounded-lg text-emerald-400 bg-slate-800 font-semibold transition-all cursor-pointer";
+      }
+    }
+
+    // Category Filter Pills Click Handler
+    if (newsCategoryPills) {
+      newsCategoryPills.addEventListener("click", (e) => {
+        const btn = e.target.closest(".news-filter-btn");
+        if (!btn) return;
+        activeNewsFilter = btn.dataset.cat;
+        updateCategoryPillStyles();
+        renderSportsNews();
+      });
+    }
+
+    // Team Filter Toggles
+    if (teamFilterAll) teamFilterAll.addEventListener("click", () => { activeNewsTeamFilter = "all"; updateTeamToggleStyles(); renderSportsNews(); });
+    if (teamFilterAway) teamFilterAway.addEventListener("click", () => { activeNewsTeamFilter = "away"; updateTeamToggleStyles(); renderSportsNews(); });
+    if (teamFilterHome) teamFilterHome.addEventListener("click", () => { activeNewsTeamFilter = "home"; updateTeamToggleStyles(); renderSportsNews(); });
+
+    // News Search Input Handler
+    if (newsSearchInput) {
+      newsSearchInput.addEventListener("input", (e) => {
+        newsSearchQuery = e.target.value.trim().toLowerCase();
+        renderSportsNews();
+      });
+    }
+
+    // Quick Bar Refresh News Button
+    if (quickBarRefreshBtn) {
+      quickBarRefreshBtn.addEventListener("click", () => {
+        if (currentNewsMatchup.home && currentNewsMatchup.away) {
+          fetchGameNewsClient(currentNewsMatchup.home, currentNewsMatchup.away, currentSport, true);
+        }
+      });
     }
 
     // Initialize application on load
