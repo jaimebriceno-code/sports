@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Betting Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #fff; }
+    .prose p { margin-bottom: 1rem; color: #d1d5db; line-height: 1.6; }
+    .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #d1d5db; }
+    .prose strong { color: #60a5fa; font-weight: 600; }
+    .prose hr { border-color: #374151; margin: 1.5rem 0; }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4 md:p-8 font-sans">
+  <div class="max-w-3xl mx-auto space-y-8">
+    
+    <header class="border-b border-gray-700 pb-4">
+      <h1 class="text-3xl font-bold text-blue-400">AI Betting Analytics</h1>
+      <p class="text-gray-400 text-sm mt-1">On-Demand Quantitative Prediction Terminal</p>
+    </header>
+
+    <!-- Selection Panel -->
+    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">Select League</label>
+        <select id="sportSelect" class="w-full bg-gray-950 border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-blue-500" onchange="fetchGames()">
+          <option value="">-- Select Sport --</option>
+          <option value="americanfootball_nfl">NFL Football</option>
+          <option value="basketball_nba">NBA Basketball</option>
+          <option value="baseball_mlb">MLB Baseball</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">Upcoming Matchup</label>
+        <select id="gameSelect" class="w-full bg-gray-950 border border-gray-600 rounded-lg p-3 text-white disabled:opacity-50 outline-none focus:border-blue-500" disabled>
+          <option value="">Choose a sport above first...</option>
+        </select>
+      </div>
+
+      <button id="analyzeBtn" onclick="runAnalysis()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 py-3.5 rounded-lg font-bold text-lg transition shadow-lg cursor-pointer disabled:cursor-not-allowed" disabled>
+        Run AI Quantitative Analysis
+      </button>
+    </div>
+
+    <!-- Analysis Output -->
+    <div id="resultsArea" class="hidden bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+      <div id="loading" class="hidden flex flex-col items-center py-12">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mb-4"></div>
+        <p class="text-gray-400 text-sm animate-pulse">Analyzing odds discrepancies & calculating EV...</p>
+      </div>
+      
+      <div id="analysisOutput" class="prose max-w-none hidden"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // Hardcoded live endpoint (No secret keys needed)
+    const WORKER_URL = 'https://sports-betting-ai.jaime-briceno.workers.dev';
+
+    async function fetchGames() {
+      const sport = document.getElementById('sportSelect').value;
+      const gameSelect = document.getElementById('gameSelect');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      
+      if (!sport) return;
+
+      gameSelect.disabled = true;
+      gameSelect.innerHTML = '<option>Loading live games from Cloudflare...</option>';
+      analyzeBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${WORKER_URL}?sport=${sport}`);
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const games = await res.json();
+        
+        gameSelect.innerHTML = '<option value="">-- Choose a Game --</option>';
+        games.forEach(game => {
+          const date = new Date(game.commence_time).toLocaleString([], {weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'});
+          gameSelect.innerHTML += `<option value="${game.id}">${game.away_team} @ ${game.home_team} (${date})</option>`;
+        });
+        
+        gameSelect.disabled = false;
+        gameSelect.onchange = () => analyzeBtn.disabled = !gameSelect.value;
+      } catch (e) {
+        gameSelect.innerHTML = '<option>Error loading games. Check worker status.</option>';
+      }
+    }
+
+    async function runAnalysis() {
+      const sport = document.getElementById('sportSelect').value;
+      const gameId = document.getElementById('gameSelect').value;
+
+      document.getElementById('resultsArea').classList.remove('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('analysisOutput').classList.add('hidden');
+      document.getElementById('analyzeBtn').disabled = true;
+
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sport, gameId })
+        });
+        
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        document.getElementById('analysisOutput').innerHTML = marked.parse(data.analysis);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('analysisOutput').classList.remove('hidden');
+      } catch (e) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('analysisOutput').classList.remove('hidden');
+        document.getElementById('analysisOutput').innerHTML = `<p class="text-red-400 font-bold">Error: ${e.message}</p>`;
+      } finally {
+        document.getElementById('analyzeBtn').disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
